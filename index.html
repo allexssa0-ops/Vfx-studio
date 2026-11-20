@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Studio VFX Complete: 12 Efek (Seamless Loop)</title>
+    <style>
+        body { 
+            margin: 0; 
+            overflow: hidden; 
+            background-color: #000; 
+            font-family: sans-serif; 
+            touch-action: none;
+            height: 100vh; 
+            width: 100vw;
+            position: relative;
+        }
+        
+        canvas { 
+            display: block; 
+            background: #000; 
+            box-shadow: 0 0 40px rgba(0, 0, 0, 1);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%); 
+            transition: top 0.5s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        
+        body.menu-open canvas { top: 37%; }
+
+        #btnOpenMenu {
+            position: absolute; 
+            top: 20px;
+            right: 20px;
+            background: rgba(13, 110, 253, 0.92); 
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3); 
+            padding: 10px 20px;
+            border-radius: 50px; 
+            font-weight: bold; font-size: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            z-index: 9999;
+            cursor: pointer;
+        }
+        #btnOpenMenu.recording { background: rgba(220, 53, 69, 0.95); }
+
+        #controls { 
+            position: absolute; bottom: 0; left: 0; width: 100%; 
+            background: rgba(14, 14, 16, 0.98); 
+            padding: 15px 15px 30px 15px; 
+            color: white; text-align: center; 
+            border-top: 1px solid #444; 
+            border-radius: 25px 25px 0 0;
+            height: 60vh;
+            overflow-y: auto; 
+            z-index: 999; box-sizing: border-box; 
+            transform: translateY(110%);
+            transition: transform 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        .menu-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 12px; padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            position: sticky; top: 0; background: rgba(14,14,16,0.98); z-index: 10;
+        }
+        .menu-title { font-size: 13px; font-weight: bold; color: #fff; letter-spacing: 1px; }
+        #fpsInfo { font-size: 10px; color: #6c6; margin-left: 8px; font-weight: normal; }
+        .btn-close { 
+            background: #333; border: 1px solid #555; color: #fff; 
+            padding: 6px 15px; border-radius: 20px; font-size: 11px; cursor: pointer; flex-grow: 0;
+        }
+
+        .section-label { font-size: 10px; color: #888; text-align: left; margin: 14px 0 6px 0; text-transform: uppercase; letter-spacing: 0.5px;}
+        .btn-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 6px; }
+        .btn-group { display: flex; justify-content: center; gap: 7px; margin-bottom: 5px; flex-wrap: wrap; }
+        
+        button { 
+            padding: 10px 6px; border-radius: 10px; border: 1px solid #333; 
+            background: #222; color: #aaa; font-size: 11px; font-weight: bold; 
+            flex-grow: 1; cursor: pointer; transition: all 0.2s;
+        }
+        
+        button.mode-active { background: #6610f2; color: white; border-color: #520dc2; box-shadow: 0 0 12px rgba(102, 16, 242, 0.45); }
+        button.res-active { background: #0d6efd; color: white; border-color: #0a58ca; }
+        .btn-rec { background: linear-gradient(135deg, #4f46e5, #db2777); color: white; border: none; }
+        .btn-rec.recording { background: #dc3545; color: white; animation: pulse 1s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        .slider-row { display: flex; align-items: center; justify-content: space-between; margin-top: 11px; }
+        .slider-row label { font-size: 11px; color: #ccc; min-width: 105px; text-align: left; }
+        .slider-row span { background: #333; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #fff; margin-left: 5px; min-width: 45px; text-align: center;}
+        input[type=range] { flex-grow: 1; height: 5px; accent-color: #6610f2; margin: 0 10px; border-radius: 5px; background: #444; }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <button id="btnOpenMenu" onclick="toggleMenu(true)">⚙️ STUDIO VFX (12 EFEK)</button>
+
+    <div id="controls">
+        <div class="menu-header">
+            <div class="menu-title">VFX COMPLETE STUDIO <span id="fpsInfo">-- fps</span></div>
+            <button class="btn-close" onclick="toggleMenu(false)">Tutup ✖</button>
+        </div>
+
+        <div class="section-label">1. Pilih Elemen VFX (100% Seamless Loop)</div>
+        <div class="btn-grid">
+            <button onclick="setMode('embers')" id="btnEmbers" class="mode-active">🔥 Embers</button>
+            <button onclick="setMode('smoke')" id="btnSmoke">💨 Smoke</button>
+            <button onclick="setMode('steam')" id="btnSteam">♨️ Steam</button>
+            <button onclick="setMode('fog')" id="btnFog">🌫️ Kabut</button>
+            <button onclick="setMode('clouds')" id="btnClouds">☁️ Awan</button>
+            <button onclick="setMode('rain')" id="btnRain">🌧️ Rain</button>
+            <button onclick="setMode('storm')" id="btnStorm">⛈️ Storm</button>
+            <button onclick="setMode('window')" id="btnWindow">🪟 Embun Kaca</button>
+            <button onclick="setMode('autumn')" id="btnAutumn">🍁 Daun Gugur</button>
+            <button onclick="setMode('sakura')" id="btnSakura">🌸 Sakura</button>
+            <button onclick="setMode('snow')" id="btnSnow">❄️ Snow</button>
+            <button onclick="setMode('dust')" id="btnDust">✨ Dust/Bokeh</button>
+        </div>
+
+        <div class="section-label">2. Effect Customizer</div>
+        <div style="border-top: 1px solid #333; padding-top: 5px;">
+            <div class="slider-row">
+                <label id="lblQty">Quantity</label>
+                <input type="range" id="inQty" min="50" max="4000" step="50" value="1500" oninput="updateParam('qty', this.value)">
+                <span id="valQty">1500</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblSpeed">Speed</label>
+                <input type="range" id="inSpeed" min="0.2" max="3.0" step="0.1" value="1.3" oninput="updateParam('speed', this.value)">
+                <span id="valSpeed">1.3x</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblSize">Particle Size</label>
+                <input type="range" id="inSize" min="0.2" max="2.5" step="0.1" value="0.8" oninput="updateParam('size', this.value)">
+                <span id="valSize">0.8x</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblWind">Wind / Drift</label>
+                <input type="range" id="inWind" min="-3.0" max="3.0" step="0.1" value="0.0" oninput="updateParam('wind', this.value)">
+                <span id="valWind">0.0</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblChaos">Chaos / Swirl</label>
+                <input type="range" id="inChaos" min="0.0" max="3.0" step="0.1" value="1.0" oninput="updateParam('chaos', this.value)">
+                <span id="valChaos">1.0</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblExtra1">Area Width</label>
+                <input type="range" id="inExtra1" min="0" max="100" step="5" value="50" oninput="updateParam('extra1', this.value)">
+                <span id="valExtra1">50%</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblExtra2">Fade / Detail</label>
+                <input type="range" id="inExtra2" min="0" max="100" step="5" value="100" oninput="updateParam('extra2', this.value)">
+                <span id="valExtra2">100%</span>
+            </div>
+        </div>
+
+        <div class="section-label">3. Video Export Settings (Seamless Loop)</div>
+        <div class="btn-group">
+            <button onclick="setResolution('720')" id="res720">HD 720</button>
+            <button onclick="setResolution('1080')" id="res1080" class="res-active">FHD 1080</button>
+            <button onclick="setResolution('4k')" id="res4k">4K Ultra</button>
+        </div>
+
+        <div class="section-label">Durasi Loop Otomatis</div>
+        <div class="btn-group">
+            <button onclick="setDuration(5)" id="dur5">5s</button>
+            <button onclick="setDuration(10)" id="dur10" class="res-active">10s</button>
+            <button onclick="setDuration(15)" id="dur15">15s</button>
+            <button onclick="setDuration(20)" id="dur20">20s</button>
+            <button onclick="setDuration(30)" id="dur30">30s</button>
+        </div>
+
+        <div class="section-label">Frame Rate</div>
+        <div class="btn-group">
+            <button onclick="setFps(24)" id="fps24">24 FPS</button>
+            <button onclick="setFps(30)" id="fps30" class="res-active">30 FPS</button>
+            <button onclick="setFps(60)" id="fps60">60 FPS</button>
+        </div>
+
+        <div class="btn-group" style="margin-top:12px;">
+            <button onclick="ambilFoto()">📸 Foto PNG</button>
+            <button onclick="startAutoExport()" id="btnRec" class="btn-rec">💾 Save Video (10s Loop)</button>
+        </div>
+
+        <div class="section-label">4. Proyeksi 3D (Opsional)</div>
+        <div class="slider-row">
+            <label>🧭 Putar X</label>
+            <input type="range" id="inRotX" min="-60" max="60" step="1" value="0" oninput="updateRot('x',this.value)">
+            <span id="valRotX">0°</span>
+        </div>
+        <div class="slider-row">
+            <label>🧭 Putar Y</label>
+            <input type="range" id="inRotY" min="-60" max="60" step="1" value="0" oninput="updateRot('y',this.value)">
+            <span id="valRotY">0°</span>
+        </div>
+        <div class="slider-row">
+            <label>🔍 Zoom</label>
+            <input type="range" id="inZoom" min="0.5" max="2.5" step="0.05" value="1" oninput="updateRot('zoom',this.value)">
+            <span id="valZoom">1.00x</span>
+        </div>
+        <div class="btn-group" style="margin-top:8px;">
+            <button onclick="reset3D()">↺ Reset 3D</button>
+        </div>
+        
+        <div style="height: 60px;"></div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const fx = document.createElement('canvas');
+    const ctx = fx.getContext('2d', { alpha: false });
+
+    // ===== WebGL 3D Pipeline =====
+    let gl = null, ctx2 = null, glBuf = null, glMax = 0;
+    const quad = new Float32Array(24);
+    let rotX = 0, rotY = 0, rotZ = 0, zoom3d = 1;
+
+    (function initGL() {
+        try { gl = canvas.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true }); }
+        catch (e) { gl = null; }
+        if (!gl) { ctx2 = canvas.getContext('2d'); return; }
+        const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+        const prog = gl.createProgram();
+        gl.attachShader(prog, sh(gl.VERTEX_SHADER,
+            'attribute vec4 a_pos; attribute vec2 a_uv; varying vec2 v_uv; void main(){ v_uv = a_uv; gl_Position = a_pos; }'));
+        gl.attachShader(prog, sh(gl.FRAGMENT_SHADER,
+            'precision mediump float; varying vec2 v_uv; uniform sampler2D u_tex; void main(){ gl_FragColor = texture2D(u_tex, v_uv); }'));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+        glMax = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        glBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, glBuf);
+        const aPos = gl.getAttribLocation(prog, 'a_pos'), aUv = gl.getAttribLocation(prog, 'a_uv');
+        gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 4, gl.FLOAT, false, 24, 0);
+        gl.enableVertexAttribArray(aUv);  gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 24, 16);
+        const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.uniform1i(gl.getUniformLocation(prog, 'u_tex'), 0);
+    })();
+
+    function computeQuad(out) {
+        const W = CURRENT_WIDTH, H = CURRENT_HEIGHT, D = H * 1.5;
+        const ax = -rotX * Math.PI / 180, ay = rotY * Math.PI / 180, az = rotZ * Math.PI / 180;
+        const cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay), cz = Math.cos(az), sz = Math.sin(az);
+        const corners = [[-1, -1, 0, 0], [1, -1, 1, 0], [-1, 1, 0, 1], [1, 1, 1, 1]];
+        for (let i = 0; i < 4; i++) {
+            const c = corners[i];
+            let x = c[0] * W / 2 * zoom3d, y = c[1] * H / 2 * zoom3d, z = 0;
+            let t = y * cx - z * sx; z = y * sx + z * cx; y = t;
+            t = x * cy + z * sy; z = -x * sy + z * cy; x = t;
+            t = x * cz + y * sz; y = -x * sz + y * cz; x = t;
+            const w = Math.max(0.05, (D - z) / D);
+            const o = i * 6;
+            out[o] = x / (W / 2); out[o + 1] = y / (H / 2); out[o + 2] = 0; out[o + 3] = w;
+            out[o + 4] = c[2]; out[o + 5] = c[3];
+        }
+    }
+
+    function present() {
+        if (gl) {
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, fx);
+            computeQuad(quad);
+            gl.bufferData(gl.ARRAY_BUFFER, quad, gl.DYNAMIC_DRAW);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        } else if (ctx2) {
+            ctx2.drawImage(fx, 0, 0);
+        }
+    }
+
+    // ===== Config =====
+    let CURRENT_WIDTH = 1920;
+    let CURRENT_HEIGHT = 1080;
+    let RESOLUTION_SCALE = 1.0; 
+    let TARGET_FPS = 30;
+    let LOOP_DURATION = 10;
+    let isMenuOpen = false;
+
+    let isRecording = false;
+    let mediaRecorder = null;
+    let videoTrack = null;
+    let chunks = [];
+    let wakeLock = null;
+    let exportFrameIdx = 0;
+    let exportTotalFrames = 0;
+
+    canvas.width = CURRENT_WIDTH; canvas.height = CURRENT_HEIGHT;
+    fx.width = CURRENT_WIDTH; fx.height = CURRENT_HEIGHT;
+
+    function fitScreen() {
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        const availH = isMenuOpen ? winH * 0.46 : winH;
+        const scale = Math.min(winW / CURRENT_WIDTH, availH / CURRENT_HEIGHT);
+        canvas.style.width = (CURRENT_WIDTH * scale) + "px";
+        canvas.style.height = (CURRENT_HEIGHT * scale) + "px";
+    }
+    window.addEventListener('resize', fitScreen);
+    fitScreen();
+
+    window.toggleMenu = (show) => {
+        isMenuOpen = show;
+        const panel = document.getElementById('controls');
+        const btnOpen = document.getElementById('btnOpenMenu');
+        if (show) {
+            panel.style.transform = "translateY(0)"; 
+            btnOpen.style.display = "none";
+            document.body.classList.add('menu-open'); 
+        } else {
+            panel.style.transform = "translateY(110%)"; 
+            btnOpen.style.display = "block";
+            document.body.classList.remove('menu-open'); 
+        }
+        setTimeout(fitScreen, 50); 
+    };
+
+    // ===== Sprites Pre-rendered =====
+    const softSmokeSprite = document.createElement('canvas');
+    softSmokeSprite.width = softSmokeSprite.height = 160;
+    (function () {
+        const s = softSmokeSprite.getContext('2d');
+        const blobs = [
+            { x: 80, y: 80, r: 72, a: 0.45 },
+            { x: 62, y: 70, r: 52, a: 0.35 },
+            { x: 98, y: 74, r: 50, a: 0.35 },
+            { x: 75, y: 98, r: 48, a: 0.30 },
+            { x: 88, y: 60, r: 44, a: 0.25 }
+        ];
+        blobs.forEach(b => {
+            const g = s.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+            g.addColorStop(0, `rgba(240, 244, 250, ${b.a})`);
+            g.addColorStop(0.45, `rgba(215, 222, 232, ${b.a * 0.45})`);
+            g.addColorStop(1, 'rgba(190, 200, 210, 0)');
+            s.fillStyle = g;
+            s.beginPath();
+            s.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+            s.fill();
+        });
+    })();
+
+    // Volumetric Cumulus Cloud Sprite (Bagian atas cerah + bagian bawah teduh berdimensi)
+    const cloudSprite = document.createElement('canvas');
+    cloudSprite.width = 320;
+    cloudSprite.height = 200;
+    (function () {
+        const s = cloudSprite.getContext('2d');
+        const puffs = [
+            { x: 160, y: 88,  r: 68, top: 'rgba(255,255,255,0.85)', bot: 'rgba(175,190,215,0.15)' },
+            { x: 105, y: 105, r: 58, top: 'rgba(250,252,255,0.80)', bot: 'rgba(165,182,210,0.12)' },
+            { x: 215, y: 108, r: 56, top: 'rgba(250,252,255,0.80)', bot: 'rgba(165,182,210,0.12)' },
+            { x: 64,  y: 124, r: 44, top: 'rgba(240,246,255,0.68)', bot: 'rgba(155,172,200,0.08)' },
+            { x: 256, y: 125, r: 42, top: 'rgba(240,246,255,0.68)', bot: 'rgba(155,172,200,0.08)' },
+            { x: 140, y: 126, r: 54, top: 'rgba(220,230,245,0.55)', bot: 'rgba(14
