@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Studio VFX Complete: 12 Efek (Seamless Loop)</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+            font-family: sans-serif;
+            touch-action: none;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
+        }
+
+        canvas {
+            display: block;
+            background: #000;
+            box-shadow: 0 0 40px rgba(0, 0, 0, 1);
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            transition: top 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        body.menu-open canvas {
+            top: 37%;
+        }
+
+        #btnOpenMenu {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(13, 110, 253, 0.92);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            padding: 10px 18px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            z-index: 9999;
+            cursor: pointer;
+        }
+
+        #btnOpenMenu.recording {
+            background: rgba(220, 53, 69, 0.95);
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(14, 14, 16, 0.98);
+            padding: 15px 15px 30px 15px;
+            color: white;
+            text-align: center;
+            border-top: 1px solid #444;
+            border-radius: 25px 25px 0 0;
+            height: 60vh;
+            overflow-y: auto;
+            z-index: 999;
+            box-sizing: border-box;
+            transform: translateY(110%);
+            transition: transform 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        #controls.open {
+            transform: translateY(0);
+        }
+
+        .menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
+            position: sticky;
+            top: 0;
+            background: rgba(14, 14, 16, 0.98);
+            z-index: 10;
+        }
+
+        .menu-title {
+            font-size: 13px;
+            font-weight: bold;
+            color: #fff;
+            letter-spacing: 1px;
+        }
+
+        #fpsInfo {
+            font-size: 10px;
+            color: #6c6;
+            margin-left: 8px;
+            font-weight: normal;
+        }
+
+        .btn-close {
+            background: #333;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 11px;
+            cursor: pointer;
+            flex-grow: 0;
+        }
+
+        .section-label {
+            font-size: 10px;
+            color: #888;
+            text-align: left;
+            margin: 14px 0 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 7px;
+            margin-bottom: 5px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 6px;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #222;
+            color: #aaa;
+            font-size: 11px;
+            font-weight: bold;
+            flex-grow: 1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        button.mode-active {
+            background: #6610f2;
+            color: white;
+            border-color: #520dc2;
+            box-shadow: 0 0 12px rgba(102, 16, 242, 0.45);
+        }
+
+        button.res-active {
+            background: #0d6efd;
+            color: white;
+            border-color: #0a58ca;
+        }
+
+        .btn-rec {
+            background: linear-gradient(135deg, #4f46e5, #db2777);
+            color: white;
+            border: none;
+        }
+
+        .btn-rec.recording {
+            background: #dc3545;
+            color: white;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 11px;
+        }
+
+        .slider-row label {
+            font-size: 11px;
+            color: #ccc;
+            min-width: 105px;
+            text-align: left;
+        }
+
+        .slider-row span {
+            background: #333;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            color: #fff;
+            margin-left: 5px;
+            min-width: 45px;
+            text-align: center;
+        }
+
+        input[type=range] {
+            flex-grow: 1;
+            height: 5px;
+            accent-color: #6610f2;
+            margin: 0 10px;
+            border-radius: 5px;
+            background: #444;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas"></canvas>
+
+    <button id="btnOpenMenu" type="button" onclick="toggleMenu(true)">⚙️ STUDIO VFX (12 EFEK)</button>
+
+    <div id="controls">
+        <div class="menu-header">
+            <div class="menu-title">VFX COMPLETE STUDIO <span id="fpsInfo">-- fps</span></div>
+            <button class="btn-close" type="button" onclick="toggleMenu(false)">Tutup ✖</button>
+        </div>
+
+        <div class="section-label">1. Pilih Elemen VFX (100% Seamless Loop)</div>
+        <div class="btn-grid">
+            <button type="button" onclick="setMode('embers')" id="btnEmbers" class="mode-active">🔥 Embers</button>
+            <button type="button" onclick="setMode('smoke')" id="btnSmoke">💨 Smoke</button>
+            <button type="button" onclick="setMode('steam')" id="btnSteam">♨️ Steam</button>
+            <button type="button" onclick="setMode('fog')" id="btnFog">🌫️ Kabut</button>
+            <button type="button" onclick="setMode('clouds')" id="btnClouds">☁️ Awan</button>
+            <button type="button" onclick="setMode('rain')" id="btnRain">🌧️ Rain</button>
+            <button type="button" onclick="setMode('storm')" id="btnStorm">⛈️ Storm</button>
+            <button type="button" onclick="setMode('window')" id="btnWindow">🪟 Embun Kaca</button>
+            <button type="button" onclick="setMode('autumn')" id="btnAutumn">🍁 Daun Gugur</button>
+            <button type="button" onclick="setMode('sakura')" id="btnSakura">🌸 Sakura</button>
+            <button type="button" onclick="setMode('snow')" id="btnSnow">❄️ Snow</button>
+            <button type="button" onclick="setMode('dust')" id="btnDust">✨ Dust/Bokeh</button>
+        </div>
+
+        <div class="section-label">2. Effect Customizer</div>
+        <div style="border-top: 1px solid #333; padding-top: 5px;">
+            <div class="slider-row">
+                <label id="lblQty">Quantity</label>
+                <input type="range" id="inQty" min="50" max="4000" step="50" value="1500" oninput="updateParam('qty', this.value)">
+                <span id="valQty">1500</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblSpeed">Speed</label>
+                <input type="range" id="inSpeed" min="0.2" max="3.0" step="0.1" value="1.3" oninput="updateParam('speed', this.value)">
+                <span id="valSpeed">1.3x</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblSize">Particle Size</label>
+                <input type="range" id="inSize" min="0.2" max="2.5" step="0.1" value="0.8" oninput="updateParam('size', this.value)">
+                <span id="valSize">0.8x</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblWind">Wind / Drift</label>
+                <input type="range" id="inWind" min="-3.0" max="3.0" step="0.1" value="0.0" oninput="updateParam('wind', this.value)">
+                <span id="valWind">0.0</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblChaos">Chaos / Swirl</label>
+                <input type="range" id="inChaos" min="0.0" max="3.0" step="0.1" value="1.0" oninput="updateParam('chaos', this.value)">
+                <span id="valChaos">1.0</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblExtra1">Area Width</label>
+                <input type="range" id="inExtra1" min="0" max="100" step="5" value="50" oninput="updateParam('extra1', this.value)">
+                <span id="valExtra1">50%</span>
+            </div>
+            <div class="slider-row">
+                <label id="lblExtra2">Fade / Detail</label>
+                <input type="range" id="inExtra2" min="0" max="100" step="5" value="100" oninput="updateParam('extra2', this.value)">
+                <span id="valExtra2">100%</span>
+            </div>
+        </div>
+
+        <div class="section-label">3. Video Export Settings (Seamless Loop)</div>
+        <div class="btn-group">
+            <button type="button" onclick="setResolution('720')" id="res720">HD 720</button>
+            <button type="button" onclick="setResolution('1080')" id="res1080" class="res-active">FHD 1080</button>
+            <button type="button" onclick="setResolution('4k')" id="res4k">4K Ultra</button>
+        </div>
+
+        <div class="section-label">Durasi Loop Otomatis</div>
+        <div class="btn-group">
+            <button type="button" onclick="setDuration(5)" id="dur5">5s</button>
+            <button type="button" onclick="setDuration(10)" id="dur10" class="res-active">10s</button>
+            <button type="button" onclick="setDuration(15)" id="dur15">15s</button>
+            <button type="button" onclick="setDuration(20)" id="dur20">20s</button>
+            <button type="button" onclick="setDuration(30)" id="dur30">30s</button>
+        </div>
+
+        <div class="section-label">Frame Rate</div>
+        <div class="btn-group">
+            <button type="button" onclick="setFps(24)" id="fps24">24 FPS</button>
+            <button type="button" onclick="setFps(30)" id="fps30" class="res-active">30 FPS</button>
+            <button type="button" onclick="setFps(60)" id="fps60">60 FPS</button>
+        </div>
+
+        <div class="btn-group" style="margin-top:12px;">
+            <button type="button" onclick="ambilFoto()">📸 Foto PNG</button>
+            <button type="button" onclick="startAutoExport()" id="btnRec" class="btn-rec">💾 Save Video (10s Loop)</button>
+        </div>
+
+        <div class="section-label">4. Proyeksi 3D (Opsional)</div>
+        <div class="slider-row">
+            <label>🧭 Putar X</label>
+            <input type="range" id="inRotX" min="-60" max="60" step="1" value="0" oninput="updateRot('x',this.value)">
+            <span id="valRotX">0°</span>
+        </div>
+        <div class="slider-row">
+            <label>🧭 Putar Y</label>
+            <input type="range" id="inRotY" min="-60" max="60" step="1" value="0" oninput="updateRot('y',this.value)">
+            <span id="valRotY">0°</span>
+        </div>
+        <div class="slider-row">
+            <label>🔍 Zoom</label>
+            <input type="range" id="inZoom" min="0.5" max="2.5" step="0.05" value="1" oninput="updateRot('zoom',this.value)">
+            <span id="valZoom">1.00x</span>
+        </div>
+        <div class="btn-group" style="margin-top:8px;">
+            <button type="button" onclick="reset3D()">↺ Reset 3D</button>
+        </div>
+
+        <div style="height: 60px;"></div>
+    </div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const fx = document.createElement('canvas');
+    const ctx = fx.getContext('2d', { alpha: false });
+
+    let gl = null, ctx2 = null, glBuf = null, glMax = 0;
+    const quad = new Float32Array(24);
+    let rotX = 0, rotY = 0, rotZ = 0, zoom3d = 1;
+
+    (function initGL() {
+        try { gl = canvas.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true }); }
+        catch (e) { gl = null; }
+        if (!gl) { ctx2 = canvas.getContext('2d'); return; }
+        const sh = (type, src) => { const o = gl.createShader(type); gl.shaderSource(o, src); gl.compileShader(o); return o; };
+        const prog = gl.createProgram();
+        gl.attachShader(prog, sh(gl.VERTEX_SHADER,
+            'attribute vec4 a_pos; attribute vec2 a_uv; varying vec2 v_uv; void main(){ v_uv = a_uv; gl_Position = a_pos; }'));
+        gl.attachShader(prog, sh(gl.FRAGMENT_SHADER,
+            'precision mediump float; varying vec2 v_uv; uniform sampler2D u_tex; void main(){ gl_FragColor = texture2D(u_tex, v_uv); }'));
+        gl.linkProgram(prog);
+        gl.useProgram(prog);
+        glMax = gl.getParameter(gl.MAX_TEXTURE_SIZE);
+        glBuf = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, glBuf);
+        const aPos = gl.getAttribLocation(prog, 'a_pos'), aUv = gl.getAttribLocation(prog, 'a_uv');
+        gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos, 4, gl.FLOAT, false, 24, 0);
+        gl.enableVertexAttribArray(aUv);  gl.vertexAttribPointer(aUv, 2, gl.FLOAT, false, 24, 16);
+        const tex = gl.createTexture(); gl.bindTexture(gl.TEXTURE_2D, tex);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.uniform1i(gl.getUniformLocation(prog, 'u_tex'), 0);
+    })();
+
+    function computeQuad(out) {
+        const W = CURRENT_WIDTH, H = CURRENT_HEIGHT, D = H * 1.5;
+        const ax = -rotX * Math.PI / 180, ay = rotY * Math.PI / 180, az = rotZ * Math.PI / 180;
+        const cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay), cz = Math.cos(az), sz = Math.sin(az);
+        const corners = [[-1, -1, 0, 0], [1, -1, 1, 0], [-1, 1, 0, 1], [1, 1, 1, 1]];
+        for (let i = 0; i < 4; i++) {
+            const c = corners[i];
+            let x = c[0] * W / 2 * zoom3d, y = c[1] * H / 2 * zoom3d, z = 0;
+            let t = y * cx - z * sx; z = y * sx + z * cx; y = t;
+            t = x * cy + z * sy; z = -x * sy + z * cy; x = t;
+            t = x * cz + y * sz; y = -x * sz + y * cz; x = t;
+            const w = Math.max(0.05, (D - z) / D);
+            const o = i * 6;
+            out[o] = x / (W / 2); out[o + 1] = y / (H / 2); out[o + 2] = 0; out[o + 3] = w;
+            out[o + 4] = c[2]; out[o + 5] = c[3];
+        }
+    }
+
+    function present() {
+        if (gl) {
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            gl.clearColor(0, 0, 0, 1); gl.clear(gl.COLOR_BUFFER_BIT);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, fx);
+            computeQuad(quad);
+            gl.bufferData(gl.ARRAY_BUFFER, quad, gl.DYNAMIC_DRAW);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        } else if (ctx2) {
+            ctx2.drawImage(fx, 0, 0);
+        }
+    }
+
+    let CURRENT_WIDTH = 1920;
+    let CURRENT_HEIGHT = 1080;
+    let RESOLUTION_SCALE = 1.0;
+    let TARGET_FPS = 30;
+    let LOOP_DURATION = 10;
+    let isMenuOpen = false;
+
+    let isRecording = false;
+    let mediaRecorder = null;
+    let videoTrack = null;
+    let chunks = [];
+    let wakeLock = null;
+    let exportFrameIdx = 0;
+    let exportTotalFrames = 0;
+
+    canvas.width = CURRENT_WIDTH; canvas.height = CURRENT_HEIGHT;
+    fx.width = CURRENT_WIDTH; fx.height = CURRENT_HEIGHT;
+
+    function fitScreen() {
+        const winW = window.innerWidth;
+        const winH = window.innerHeight;
+        const availH = isMenuOpen ? winH * 0.46 : winH;
+        const scale = Math.min(winW / CURRENT_WIDTH, availH / CURRENT_HEIGHT);
+        canvas.style.width = (CURRENT_WIDTH * scale) + "px";
+        canvas.style.height = (CURRENT_HEIGHT * scale) + "px";
+    }
+    window.addEventListener('resize', fitScreen);
+    fitScreen();
+
+    window.toggleMenu = function(show) {
+        isMenuOpen = Boolean(show);
+        const panel = document.getElementById('controls');
+        const btnOpen = document.getElementById('btnOpenMenu');
+        if (isMenuOpen) {
+            panel.classList.add('open');
+            panel.style.transform = "translateY(0)";
+            btnOpen.style.display = "none";
+            document.body.classList.add('menu-open');
+        } else {
+            panel.classList.remove('open');
+            panel.style.transform = "translateY(110%)";
+            btnOpen.style.display = "block";
+            document.body.classList.remove('menu-open');
+        }
+        fitScreen();
+    };
+
+    const softSmokeSprite = document.createElement('canvas');
+    softSmokeSprite.width = softSmokeSprite.height = 160;
+    (function () {
+        const s = softSmokeSprite.getContext('2d');
+        const blobs = [
+            { x: 80, y: 80, r: 72, a: 0.45 },
+            { x: 62, y: 70, r: 52, a: 0.35 },
+            { x: 98, y: 74, r: 50, a: 0.35 },
+            { x: 75, y: 98, r: 48, a: 0.30 },
+            { x: 88, y: 60, r: 44, a: 0.25 }
+        ];
+        blobs.forEach(b => {
+            const g = s.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+            g.addColorStop(0, `rgba(240, 244, 250, ${b.a})`);
+            g.addColorStop(0.45, `rgba(215, 222, 232, ${b.a * 0.45})`);
+            g.addColorStop(1, 'rgba(190, 200, 210, 0)');
+            s.fillStyle = g;
+            s.beginPath();
+            s.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+            s.fill();
+        });
+    })();
+
+    const cloudSprite = document.createElement('canvas');
+    cloudSprite.width = 320;
+    cloudSprite.height = 200;
+    (function () {
+        const s = cloudSprite.getContext('2d');
+        const puffs = [
+            { x: 160, y: 88,  r: 68, top: 'rgba(255,255,255,0.85)', bot: 'rgba(175,190,215,0.15)' },
+            { x: 105, y: 105, r: 58, top: 'rgba(250,252,255,0.80)', bot: 'rgba(165,182,210,0.12)' },
+            { x: 215, y: 108, r: 56, top: 'rgba(250,252,255,0.80)', bot: 'rgba(165,182,210,0.12)' },
+            { x: 64,  y: 124, r: 44, top: 'rgba(240,246,255,0.68)', bot: 'rgba(155,172,200,0.08)' },
+            { x: 256, y: 125, r: 42, top: 'rgba(240,246,255,0.68)', bot: 'rgba(155,172,200,0.08)' },
+            { x: 140, y: 126, r: 54, top: 'rgba(220,230,245,0.55)', bot: 'rgba(140,158,190,0.05)' },
+            { x: 190, y: 126, r: 52, top: 'rgba(220,230,245,0.55)', bot: 'rgba(140,158,190,0.05)' }
+        ];
+        puffs.forEach(p => {
+            const g = s.createRadialGradient(p.x, p.y - p.r * 0.25, p.r * 0.08, p.x, p.y, p.r);
+            g.addColorStop(0, p.top);
+            g.addColorStop(0.55, p.bot);
+            g.addColorStop(1, 'rgba(140,160,190,0)');
+            s.fillStyle = g;
+            s.beginPath();
+            s.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+            s.fill();
+        });
+    })();
+
+    const emberHotSprite = document.createElement('canvas');
+    emberHotSprite.width = emberHotSprite.height = 32;
+    (function () {
+        const s = emberHotSprite.getContext('2d');
+        const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+        g.addColorStop(0, 'rgba(255, 255, 240, 1)');
+        g.addColorStop(0.18, 'rgba(255, 210, 90, 0.95)');
+        g.addColorStop(0.42, 'rgba(255, 110, 15, 0.45)');
+        g.addColorStop(1, 'rgba(200, 30, 0, 0)');
+        s.fillStyle = g;
+        s.fillRect(0, 0, 32, 32);
+    })();
+
+    const emberWarmSprite = document.createElement('canvas');
+    emberWarmSprite.width = emberWarmSprite.height = 32;
+    (function () {
+        const s = emberWarmSprite.getContext('2d');
+        const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+        g.addColorStop(0, 'rgba(255, 190, 60, 1)');
+        g.addColorStop(0.22, 'rgba(255, 85, 10, 0.85)');
+        g.addColorStop(0.55, 'rgba(200, 25, 0, 0.3)');
+        g.addColorStop(1, 'rgba(140, 0, 0, 0)');
+        s.fillStyle = g;
+        s.fillRect(0, 0, 32, 32);
+    })();
+
+    const snowSprite = document.createElement('canvas');
+    snowSprite.width = snowSprite.height = 32;
+    (function () {
+        const s = snowSprite.getContext('2d');
+        const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+        g.addColorStop(0, 'rgba(255, 255, 255, 1)');
+        g.addColorStop(0.35, 'rgba(235, 245, 255, 0.75)');
+        g.addColorStop(0.75, 'rgba(210, 230, 255, 0.20)');
+        g.addColorStop(1, 'rgba(200, 220, 255, 0)');
+        s.fillStyle = g;
+        s.fillRect(0, 0, 32, 32);
+    })();
+
+    const dustGoldSprite = document.createElement('canvas');
+    dustGoldSprite.width = dustGoldSprite.height = 48;
+    (function () {
+        const s = dustGoldSprite.getContext('2d');
+        const g = s.createRadialGradient(24, 24, 0, 24, 24, 24);
+        g.addColorStop(0, 'rgba(255, 245, 200, 1)');
+        g.addColorStop(0.3, 'rgba(255, 210, 120, 0.7)');
+        g.addColorStop(0.7, 'rgba(255, 180, 80, 0.15)');
+        g.addColorStop(1, 'rgba(255, 160, 50, 0)');
+        s.fillStyle = g;
+        s.fillRect(0, 0, 48, 48);
+    })();
+
+    const sakuraSprite = document.createElement('canvas');
+    sakuraSprite.width = sakuraSprite.height = 40;
+    (function () {
+        const s = sakuraSprite.getContext('2d');
+        const g = s.createRadialGradient(20, 18, 2, 20, 20, 18);
+        g.addColorStop(0, 'rgba(255, 220, 235, 0.98)');
+        g.addColorStop(0.6, 'rgba(255, 165, 195, 0.92)');
+        g.addColorStop(1, 'rgba(235, 115, 155, 0.85)');
+        s.fillStyle = g;
+        s.beginPath();
+        s.moveTo(20, 4);
+        s.bezierCurveTo(32, 8, 36, 24, 20, 36);
+        s.bezierCurveTo(4, 24, 8, 8, 20, 4);
+        s.fill();
+    })();
+
+    const autumnSprites = ['#e86a17', '#c92a1d', '#eab308'].map(col => {
+        const c = document.createElement('canvas');
+        c.width = c.height = 48;
+        const s = c.getContext('2d');
+        s.fillStyle = col;
+        s.beginPath();
+        s.moveTo(24, 4);
+        s.quadraticCurveTo(42, 16, 36, 32);
+        s.quadraticCurveTo(28, 42, 24, 44);
+        s.quadraticCurveTo(20, 42, 12, 32);
+        s.quadraticCurveTo(6, 16, 24, 4);
+        s.fill();
+        s.strokeStyle = 'rgba(60, 20, 5, 0.45)';
+        s.lineWidth = 1.5;
+        s.beginPath();
+        s.moveTo(24, 8);
+        s.lineTo(24, 46);
+        s.stroke();
+        return c;
+    });
+
+    const glassDropSprite = document.createElement('canvas');
+    glassDropSprite.width = glassDropSprite.height = 48;
+    (function () {
+        const s = glassDropSprite.getContext('2d');
+        const g = s.createRadialGradient(24, 28, 2, 24, 24, 20);
+        g.addColorStop(0, 'rgba(180, 210, 235, 0.12)');
+        g.addColorStop(0.65, 'rgba(200, 225, 250, 0.28)');
+        g.addColorStop(0.88, 'rgba(235, 248, 255, 0.75)');
+        g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+        s.fillStyle = g;
+        s.beginPath();
+        s.arc(24, 24, 20, 0, Math.PI * 2);
+        s.fill();
+
+        s.fillStyle = 'rgba(255, 255, 255, 0.9)';
+        s.beginPath();
+        s.ellipse(18, 15, 4.5, 2.5, -Math.PI / 5, 0, Math.PI * 2);
+        s.fill();
+
+        s.fillStyle = 'rgba(220, 242, 255, 0.55)';
+        s.beginPath();
+        s.arc(27, 34, 2.2, 0, Math.PI * 2);
+        s.fill();
+    })();
+
+    let mode = 'embers';
+    let params = {
+        qty: 1500,
+        speed: 1.3,
+        size: 0.8,
+        wind: 0.0,
+        chaos: 1.0,
+        extra1: 50,
+        extra2: 100
+    };
+
+    let particles = [];
+    let splashes = [];
+    let lightningBolts = [];
+    let simClock = 0;
+
+    function buildParticles() {
+        particles = [];
+        splashes = [];
+        lightningBolts = [];
+
+        let count = params.qty;
+        if (mode === 'smoke') count = Math.min(Math.round(params.qty * 0.35), 750);
+        if (mode === 'steam') count = Math.min(Math.round(params.qty * 0.30), 600);
+        if (mode === 'fog') count = Math.min(Math.round(params.qty * 0.18), 240);
+        if (mode === 'clouds') count = Math.min(Math.max(8, Math.round(params.qty * 0.03)), 85);
+        if (mode === 'sakura' || mode === 'autumn') count = Math.min(Math.round(params.qty * 0.45), 900);
+        if (mode === 'dust') count = Math.min(Math.round(params.qty * 0.55), 1100);
+        if (mode === 'window') count = Math.min(Math.round(params.qty * 0.40), 750);
+
+        for (let i = 0; i < count; i++) {
+            let cycles = 1;
+            if (mode === 'embers') cycles = Math.max(1, Math.round(params.speed * (LOOP_DURATION / 6.5)));
+            else if (mode === 'smoke') cycles = Math.max(1, Math.round(params.speed * (LOOP_DURATION / 8.0)));
+            else if (mode === 'steam') cycles = Math.max(1, Math.round(params.speed * (LOOP_DURATION / 5.0)));
+            else if (mode === 'fog') cycles = 1;
+            else if (mode === 'clouds') {
+                const z = 0.35 + Math.random() * 0.65;
+                cycles = Math.max(1, Math.round(params.speed * (z > 0.7 ? 1.2 : 0.8)));
+                particles.push({
+                    phase: Math.random(),
+                    cycles: cycles,
+                    xNorm: Math.random(),
+                    yNorm: Math.random(),
+                    z: z,
+                    sizeSeed: 0.65 + Math.random() * 0.85,
+                    morphFreq: (1 + Math.floor(Math.random() * 2)) * Math.PI * 2,
+                    alphaSeed: 0.65 + Math.random() * 0.35
+                });
+                continue;
+            }
+            else if (mode === 'rain' || mode === 'storm') {
+                const z = Math.pow(Math.random(), 1.35) * 0.78 + 0.22;
+                const mult = z > 0.75 ? 1.25 : (z > 0.45 ? 1.0 : 0.75);
+                cycles = Math.max(2, Math.round(params.speed * (LOOP_DURATION / 1.1) * mult));
+                particles.push({
+                    phase: Math.random(),
+                    cycles: cycles,
+                    xNorm: Math.random() * 1.8 - 0.4,
+                    z: z,
+                    lenSeed: 0.7 + Math.random() * 0.6,
+                    alphaSeed: 0.55 + Math.random() * 0.45
+                });
+                continue;
+            }
+            else if (mode === 'window') {
+                const isSliding = Math.random() < 0.35;
+                cycles = isSliding ? Math.max(1, Math.round(params.speed * (LOOP_DURATION / 6.0))) : 1;
+                particles.push({
+                    phase: Math.random(),
+                    cycles: cycles,
+                    xNorm: Math.random(),
+                    yNorm: Math.random(),
+                    isSliding: isSliding,
+                    sizeSeed: 0.35 + Math.random() * 0.95,
+                    wobbleFreq: (2 + Math.floor(Math.random() * 4)) * Math.PI * 2,
+                    wobbleAmp: (Math.random() - 0.5) * 14,
+                    alphaSeed: 0.6 + Math.random() * 0.4
+                });
+                continue;
+            }
+            else if (mode === 'snow') cycles = Math.max(1, Math.round(params.speed * (LOOP_DURATION / 7.5)));
+            else if (mode === 'sakura' || mode === 'autumn') cycles = Math.max(1, Math.round(params.speed * (LOOP_DURATION / 6.5)));
+            else if (mode === 'dust') cycles = 1;
+
+            const rSize = Math.random();
+            const sizeSeed = rSize < 0.80 ? (0.25 + Math.random() * 0.45) : (0.75 + Math.random() * 0.65);
+            const xBell = (Math.random() + Math.random() - 1.0) * 0.65;
+
+            particles.push({
+                phase: Math.random(),
+                cycles: cycles,
+                xNorm: (mode === 'embers' || mode === 'smoke' || mode === 'steam') ? xBell : (Math.random() * 1.4 - 0.2),
+                yNorm: Math.random(),
+                z: 0.25 + Math.random() * 0.75,
+                sizeSeed: sizeSeed,
+                freq1: (1 + Math.floor(Math.random() * 3)) * Math.PI * 2,
+                freq2: (3 + Math.floor(Math.random() * 5)) * Math.PI * 2,
+                amp1: (Math.random() - 0.5) * 2,
+                amp2: (Math.random() - 0.5) * 2,
+                flickerFreq: (2 + Math.floor(Math.random() * 6)) * Math.PI * 2,
+                alphaSeed: 0.40 + Math.random() * 0.60,
+                isHot: Math.random() > 0.45,
+                colorIdx: Math.floor(Math.random() * 3),
+                rotSeed: Math.random() * Math.PI * 2,
+                rotCycles: (Math.random() > 0.5 ? 1 : -1) * (1 + Math.floor(Math.random() * 2))
+            });
+        }
+
+        if (mode === 'rain' || mode === 'storm') {
+            const splashCount = Math.min(450, Math.round(params.qty * 0.22));
+            for (let i = 0; i < splashCount; i++) {
+                splashes.push({
+                    phase: Math.random(),
+                    cycles: Math.max(3, Math.round(params.speed * (LOOP_DURATION / 0.65))),
+                    xNorm: Math.random(),
+                    yZone: 0.84 + Math.random() * 0.15,
+                    sizeSeed: 0.6 + Math.random() * 0.8
+                });
+            }
+        }
+
+        if (mode === 'storm') {
+            const boltCount = Math.max(1, Math.floor(LOOP_DURATION / 4));
+            for (let b = 0; b < boltCount; b++) {
+                const startX = (0.2 + Math.random() * 0.6) * 1920;
+                const pts = [{ x: startX, y: 0 }];
+                let cx = startX, cy = 0;
+                while (cy < 780) {
+                    cy += 35 + Math.random() * 45;
+                    cx += (Math.random() - 0.5) * 85;
+                    pts.push({ x: cx, y: cy });
+                }
+                lightningBolts.push({
+                    triggerNorm: (b + 0.35 + Math.random() * 0.3) / boltCount,
+                    pts: pts
+                });
+            }
+        }
+    }
+
+    function renderSeamlessFrame(tSec) {
+        const W = CURRENT_WIDTH;
+        const H = CURRENT_HEIGHT;
+        const RS = RESOLUTION_SCALE;
+        const T = LOOP_DURATION;
+
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.globalAlpha = 1;
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, W, H);
+
+        const areaW = W * (params.extra1 / 100);
+        const maxH = H * (Math.max(20, params.extra2) / 100);
+        const centerX = W / 2;
+        const baseY = H + 15 * RS;
+
+        if (mode === 'embers') {
+            ctx.globalCompositeOperation = 'lighter';
+            const dtStep = 0.015;
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+
+                let lifeAlpha = 1.0;
+                if (u < 0.08) lifeAlpha = u / 0.08;
+                else if (u > 0.60) lifeAlpha = Math.max(0, (1.0 - u) / 0.40);
+
+                const rawWave = Math.sin(u * p.flickerFreq + p.phase * 6.28);
+                const flicker = 0.35 + 0.65 * Math.pow(0.5 + 0.5 * rawWave, 1.8);
+                const alpha = lifeAlpha * flicker * p.alphaSeed;
+                if (alpha <= 0.015) continue;
+
+                const y = baseY - Math.pow(u, 0.95) * (maxH + 30 * RS);
+                const swirl = (Math.sin(u * p.freq1) * p.amp1 * 48 + Math.cos(u * p.freq2) * p.amp2 * 24) * params.chaos * RS;
+                const windShift = Math.pow(u, 1.1) * params.wind * 340 * RS;
+                const x = centerX + p.xNorm * areaW * (0.85 + u * 0.4) + swirl + windShift;
+
+                const uPrev = (u - dtStep + 1.0) % 1.0;
+                const yPrev = baseY - Math.pow(uPrev, 0.95) * (maxH + 30 * RS);
+                const swirlPrev = (Math.sin(uPrev * p.freq1) * p.amp1 * 48 + Math.cos(uPrev * p.freq2) * p.amp2 * 24) * params.chaos * RS;
+                const windPrev = Math.pow(uPrev, 1.1) * params.wind * 340 * RS;
+                const xPrev = centerX + p.xNorm * areaW * (0.85 + uPrev * 0.4) + swirlPrev + windPrev;
+
+                const dx = x - xPrev, dy = y - yPrev;
+                const angle = Math.atan2(dy, dx);
+                const speedMag = Math.hypot(dx, dy);
+                const baseDiam = (3.2 + p.sizeSeed * 5.8) * RS * params.size * (1.05 - u * 0.45);
+                const stretch = Math.min(2.4, 1.0 + (speedMag / (14 * RS)) * 0.65);
+                const sprite = (p.isHot && u < 0.55) ? emberHotSprite : emberWarmSprite;
+
+                ctx.globalAlpha = Math.min(1, alpha);
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(angle);
+                ctx.drawImage(sprite, (-baseDiam * stretch) / 2, -baseDiam / 2, baseDiam * stretch, baseDiam);
+                ctx.restore();
+            }
+        }
+        else if (mode === 'smoke') {
+            ctx.globalCompositeOperation = 'screen';
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+                const envelope = Math.sin(Math.PI * Math.pow(u, 0.85));
+                const alpha = envelope * 0.14 * p.alphaSeed;
+                if (alpha <= 0.002) continue;
+
+                const y = baseY - Math.pow(u, 0.9) * (maxH + 90 * RS);
+                const spreadFactor = 0.22 + u * 1.5;
+                const swirl = (Math.sin(u * p.freq1 + p.phase * 6.28) * 55 * u * params.chaos) * RS;
+                const windShift = Math.pow(u, 1.2) * params.wind * 320 * RS;
+                const x = centerX + (p.xNorm * areaW * spreadFactor) + swirl + windShift;
+
+                const sz = (75 + u * 280) * p.sizeSeed * RS * params.size;
+                const rot = p.rotSeed + u * p.rotCycles * Math.PI * 2;
+
+                ctx.globalAlpha = Math.min(1, alpha);
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rot);
+                ctx.drawImage(softSmokeSprite, -sz / 2, -sz / 2, sz, sz);
+                ctx.restore();
+            }
+        }
+        else if (mode === 'steam') {
+            ctx.globalCompositeOperation = 'screen';
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+                const envelope = Math.sin(Math.PI * Math.pow(u, 0.72));
+                const alpha = envelope * 0.12 * p.alphaSeed;
+                if (alpha <= 0.002) continue;
+
+                const y = baseY - Math.pow(u, 0.85) * (maxH + 60 * RS);
+                const spreadFactor = 0.30 + u * 1.15;
+                const wispy = (Math.sin(u * p.freq1 * 1.5 + p.phase * 6.28) * 48 * Math.sin(u * Math.PI) * params.chaos) * RS;
+                const windShift = Math.pow(u, 1.1) * params.wind * 250 * RS;
+                const x = centerX + (p.xNorm * areaW * spreadFactor) + wispy + windShift;
+
+                const sz = (60 + u * 195) * p.sizeSeed * RS * params.size;
+                const rot = p.rotSeed + u * p.rotCycles * Math.PI * 2;
+
+                ctx.globalAlpha = Math.min(1, alpha);
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rot);
+                ctx.drawImage(softSmokeSprite, -sz / 2, -sz / 2, sz, sz);
+                ctx.restore();
+            }
+        }
+        else if (mode === 'fog') {
+            ctx.globalCompositeOperation = 'screen';
+            const densityMult = params.extra2 / 100;
+            const heightZone = Math.max(0.2, params.extra1 / 100);
+            const driftDir = params.wind >= 0 ? 1 : -1;
+            const driftCycles = Math.max(1, Math.round(params.speed));
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * driftCycles + p.phase) % 1.0;
+                const travel = (Math.abs(params.wind) > 0.05)
+                    ? ((p.xNorm + u * driftDir) % 1.4 + 1.4) % 1.4 - 0.2
+                    : p.xNorm + Math.sin(u * Math.PI * 2 + p.phase * 6.28) * 0.08 * params.chaos;
+
+                const x = travel * W;
+                const y = H - (p.yNorm * H * heightZone);
+                const sz = (320 + p.sizeSeed * 460) * RS * params.size;
+                const rot = p.rotSeed + Math.sin(u * Math.PI * 2) * 0.25 * params.chaos;
+
+                ctx.globalAlpha = Math.min(1, 0.09 * p.alphaSeed * densityMult);
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rot);
+                ctx.drawImage(softSmokeSprite, -sz / 2, -sz / 2, sz, sz);
+                ctx.restore();
+            }
+        }
+        else if (mode === 'clouds') {
+            ctx.globalCompositeOperation = 'screen';
+            const skyZone = Math.max(0.2, params.extra1 / 100);
+            const opacityMult = params.extra2 / 100;
+            const dir = params.wind >= 0 ? 1 : -1;
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+
+                const span = 1.6;
+                const posNorm = (Math.abs(params.wind) > 0.05)
+                    ? (((p.xNorm + u * dir) % 1.0 + 1.0) % 1.0) * span - 0.3
+                    : (p.xNorm * span - 0.3) + Math.sin(u * Math.PI * 2 + p.phase * 6.28) * 0.04;
+
+                const x = posNorm * W;
+                const y = (0.06 + p.yNorm * 0.78 * skyZone) * H;
+
+                const morph = 1.0 + Math.sin(u * p.morphFreq + p.phase * 6.28) * 0.08 * params.chaos;
+                const wCloud = (420 + p.sizeSeed * 480) * RS * params.size * p.z * morph;
+                const hCloud = wCloud * 0.62;
+
+                ctx.globalAlpha = Math.min(1, (0.30 + p.z * 0.45) * p.alphaSeed * opacityMult);
+                ctx.drawImage(cloudSprite, x - wCloud / 2, y - hCloud / 2, wCloud, hCloud);
+            }
+        }
+        else if (mode === 'rain' || mode === 'storm') {
+            if (mode === 'storm' && params.extra2 > 0) {
+                const normT = tSec / T;
+                const intensity = params.extra2 / 100;
+                for (let b = 0; b < lightningBolts.length; b++) {
+                    const bolt = lightningBolts[b];
+                    const dt = Math.abs(normT - bolt.triggerNorm);
+                    if (dt < 0.018) {
+                        const flash = Math.cos((dt / 0.018) * (Math.PI / 2)) * intensity;
+                        ctx.fillStyle = `rgba(180, 210, 255, ${(flash * 0.22).toFixed(3)})`;
+                        ctx.fillRect(0, 0, W, H);
+
+                        ctx.globalCompositeOperation = 'lighter';
+                        ctx.strokeStyle = `rgba(220, 240, 255, ${(flash * 0.95).toFixed(3)})`;
+                        ctx.lineWidth = 3.2 * RS;
+                        ctx.beginPath();
+                        bolt.pts.forEach((pt, idx) => {
+                            const px = (pt.x / 1920) * W;
+                            const py = (pt.y / 1080) * H;
+                            if (idx === 0) ctx.moveTo(px, py);
+                            else ctx.lineTo(px, py);
+                        });
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            ctx.globalCompositeOperation = 'lighter';
+            ctx.lineCap = 'round';
+            const windDeg = params.wind * 15;
+            const windRad = (windDeg * Math.PI) / 180;
+            const tanWind = Math.tan(windRad);
+            const totalTravelY = H + 260 * RS;
+            const lenMult = mode === 'storm' ? 1.45 : 1.0;
+
+            for (let i = 0; i < particles.length; i++) {
+                const d = particles[i];
+                const u = ((tSec / T) * d.cycles + d.phase) % 1.0;
+                const yHead = -130 * RS + u * totalTravelY;
+                const xHead = d.xNorm * W + (yHead * tanWind);
+                if (xHead < -150 * RS || xHead > W + 150 * RS) continue;
+
+                const streakLen = (32 + d.z * 82) * d.lenSeed * lenMult * RS;
+                const dx = Math.sin(windRad) * streakLen;
+                const dy = Math.cos(windRad) * streakLen;
+                const alpha = Math.min(1.0, (0.22 + d.z * 0.65) * d.alphaSeed);
+                if (alpha <= 0.01) continue;
+
+                ctx.strokeStyle = `rgba(215, 235, 255, ${alpha.toFixed(3)})`;
+                ctx.lineWidth = Math.max(0.8, (0.75 + d.z * 1.55) * params.size * RS);
+                ctx.beginPath();
+                ctx.moveTo(xHead - dx, yHead - dy);
+                ctx.lineTo(xHead, yHead);
+                ctx.stroke();
+            }
+
+            if (params.extra1 > 0) {
+                const activeSplashes = Math.floor(splashes.length * (params.extra1 / 100));
+                for (let i = 0; i < activeSplashes; i++) {
+                    const s = splashes[i];
+                    const u = ((tSec / T) * s.cycles + s.phase) % 1.0;
+                    const alpha = Math.sin(Math.PI * u) * 0.65;
+                    if (alpha <= 0.01) continue;
+
+                    const cx = s.xNorm * W;
+                    const cy = s.yZone * H;
+                    const r = u * (11 + s.sizeSeed * 12) * RS * params.size;
+
+                    ctx.strokeStyle = `rgba(215, 236, 255, ${(alpha * 0.7).toFixed(3)})`;
+                    ctx.lineWidth = 1.1 * RS;
+                    ctx.beginPath();
+                    ctx.ellipse(cx, cy, r, r * 0.28, 0, 0, Math.PI * 2);
+                    ctx.stroke();
+
+                    const hopH = Math.sin(Math.PI * u) * (14 * s.sizeSeed * RS);
+                    const hopW = u * (11 * s.sizeSeed * RS);
+                    ctx.fillStyle = `rgba(230, 245, 255, ${alpha.toFixed(3)})`;
+                    ctx.fillRect(cx - hopW, cy - hopH, 1.8 * RS, 1.8 * RS);
+                    ctx.fillRect(cx + hopW, cy - hopH * 0.85, 1.8 * RS, 1.8 * RS);
+                }
+            }
+        }
+        else if (mode === 'window') {
+            ctx.globalCompositeOperation = 'screen';
+            const slideRatio = params.extra1 / 100;
+            const trailOpacity = params.extra2 / 100;
+
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+
+                if (p.isSliding && slideRatio > 0.05) {
+                    const startY = (p.yNorm * 0.35) * H;
+                    const travelY = H * 0.95;
+                    const curY = startY + u * travelY;
+                    const wobble = Math.sin(u * p.wobbleFreq) * p.wobbleAmp * params.chaos * RS;
+                    const curX = p.xNorm * W + wobble + (u * params.wind * 90 * RS);
+
+                    if (trailOpacity > 0) {
+                        const steps = 14;
+                        for (let s = 1; s <= steps; s++) {
+                            const uBack = Math.max(0, u - s * 0.016);
+                            if (uBack <= 0) break;
+                            const ty = startY + uBack * travelY;
+                            const tx = p.xNorm * W + Math.sin(uBack * p.wobbleFreq) * p.wobbleAmp * params.chaos * RS + (uBack * params.wind * 90 * RS);
+                            const tSz = (3.5 + (1 - s / steps) * 4.5) * RS * params.size;
+                            ctx.globalAlpha = (1 - s / steps) * 0.55 * trailOpacity;
+                            ctx.drawImage(glassDropSprite, tx - tSz / 2, ty - tSz / 2, tSz, tSz);
+                        }
+                    }
+
+                    const headSz = (16 + p.sizeSeed * 18) * RS * params.size;
+                    const fade = u > 0.85 ? (1 - u) / 0.15 : 1.0;
+                    ctx.globalAlpha = Math.min(1, p.alphaSeed * fade);
+                    ctx.drawImage(glassDropSprite, curX - headSz / 2, curY - headSz * 0.65, headSz, headSz * 1.25);
+                } else {
+                    const pulse = 0.88 + 0.12 * Math.sin(u * Math.PI * 2 + p.phase * 6.28);
+                    const sz = (7 + p.sizeSeed * 16) * RS * params.size * pulse;
+                    ctx.globalAlpha = Math.min(1, p.alphaSeed * 0.85);
+                    ctx.drawImage(glassDropSprite, p.xNorm * W - sz / 2, p.yNorm * H - sz / 2, sz, sz);
+                }
+            }
+        }
+        else if (mode === 'autumn') {
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+                const y = -50 * RS + u * (H + 100 * RS);
+                const sway = Math.sin(u * p.freq1 + p.phase * 6.28) * 115 * params.chaos * RS;
+                const windShift = u * (params.wind * 340 + 130) * RS;
+                const x = ((p.xNorm * W + sway + windShift) % W + W) % W;
+
+                const sz = (18 + p.sizeSeed * 26) * RS * params.size * p.z;
+                const rot = p.rotSeed + u * p.rotCycles * Math.PI * 2;
+                const flipScale = 0.40 + 0.60 * Math.abs(Math.cos(u * p.freq2 + p.phase * 6.28));
+
+                ctx.globalAlpha = Math.min(1, (0.65 + p.z * 0.35) * p.alphaSeed);
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rot);
+                ctx.scale(1, flipScale);
+                ctx.drawImage(autumnSprites[p.colorIdx], -sz / 2, -sz / 2, sz, sz);
+                ctx.restore();
+            }
+        }
+        else if (mode === 'sakura') {
+            ctx.globalCompositeOperation = 'source-over';
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+                const y = -40 * RS + u * (H + 80 * RS);
+                const flutter = Math.sin(u * p.freq1 + p.phase * 6.28) * 95 * params.chaos * RS;
+                const windShift = u * (params.wind * 320 + 120) * RS;
+                const x = ((p.xNorm * W + flutter + windShift) % W + W) % W;
+
+                const sz = (12 + p.sizeSeed * 20) * RS * params.size * p.z;
+                const rot = p.rotSeed + u * p.rotCycles * Math.PI * 2;
+                const flipScale = 0.45 + 0.55 * Math.abs(Math.cos(u * p.freq2 + p.phase * 6.28));
+
+                ctx.globalAlpha = Math.min(1, (0.55 + p.z * 0.45) * p.alphaSeed);
+                ctx.save();
+                ctx.translate(x, y);
+                ctx.rotate(rot);
+                ctx.scale(1, flipScale);
+                ctx.drawImage(sakuraSprite, -sz / 2, -sz / 2, sz, sz);
+                ctx.restore();
+            }
+        }
+        else if (mode === 'snow') {
+            ctx.globalCompositeOperation = 'screen';
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+                const y = -30 * RS + u * (H + 60 * RS);
+                const sway = Math.sin(u * p.freq1 + p.phase * 6.28) * 65 * params.chaos * RS;
+                const windShift = u * params.wind * 260 * RS;
+                const x = ((p.xNorm * W + sway + windShift) % W + W) % W;
+
+                const sz = (5 + p.sizeSeed * 14) * RS * params.size * p.z;
+                ctx.globalAlpha = Math.min(1, (0.35 + p.z * 0.6) * p.alphaSeed);
+                ctx.drawImage(snowSprite, x - sz / 2, y - sz / 2, sz, sz);
+            }
+        }
+        else if (mode === 'dust') {
+            ctx.globalCompositeOperation = 'lighter';
+            for (let i = 0; i < particles.length; i++) {
+                const p = particles[i];
+                const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+                const orbitX = Math.cos(u * Math.PI * 2 + p.phase * 6.28) * 75 * params.chaos * RS;
+                const orbitY = Math.sin(u * Math.PI * 2 + p.rotSeed) * 55 * params.chaos * RS;
+                const driftX = u * params.wind * 180 * RS;
+
+                const x = ((p.xNorm * W + orbitX + driftX) % W + W) % W;
+                const y = ((p.yNorm * H + orbitY) % H + H) % H;
+
+                const twinkle = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(u * p.flickerFreq + p.phase * 6.28));
+                const sz = (6 + p.sizeSeed * 24) * RS * params.size * p.z;
+
+                ctx.globalAlpha = Math.min(1, twinkle * p.alphaSeed * 0.85);
+                ctx.drawImage(dustGoldSprite, x - sz / 2, y - sz / 2, sz, sz);
+            }
+        }
+
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+    }
+
+    window.setMode = function(newMode) {
+        if (isRecording) return;
+        mode = newMode;
+        ['embers', 'smoke', 'steam', 'fog', 'clouds', 'rain', 'storm', 'window', 'autumn', 'sakura', 'snow', 'dust'].forEach(m => {
+            const btn = document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1));
+            if (btn) btn.className = (m === mode) ? 'mode-active' : '';
+        });
+
+        if (mode === 'embers') {
+            setLabels('Ember Qty', 'Rise Speed', 'Ember Size', 'Air Draft', 'Chaos', 'Fire Width', 'Fade Height');
+            setSlider('inQty', 'valQty', 'qty', 1500, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.3, 'x');
+            setSlider('inSize', 'valSize', 'size', 0.8, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.0, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.0, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 50, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        } else if (mode === 'smoke') {
+            setLabels('Smoke Density', 'Rise Speed', 'Puff Size', 'Air Draft', 'Swirl', 'Smoke Width', 'Fade Height');
+            setSlider('inQty', 'valQty', 'qty', 1200, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.0, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.0, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.0, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.0, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 25, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        } else if (mode === 'steam') {
+            setLabels('Steam Density', 'Rise Speed', 'Puff Size', 'Air Draft', 'Wispy Twist', 'Steam Width', 'Fade Height');
+            setSlider('inQty', 'valQty', 'qty', 1000, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.2, 'x');
+            setSlider('inSize', 'valSize', 'size', 0.8, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.0, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.2, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 25, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        } else if (mode === 'fog') {
+            setLabels('Ketebalan Kabut', 'Kecepatan Geser', 'Luas Gumpalan', 'Arah Angin', 'Pusaran', 'Tinggi Kabut', 'Opasitas');
+            setSlider('inQty', 'valQty', 'qty', 900, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.0, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.2, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.6, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 0.8, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 60, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 85, '%');
+        } else if (mode === 'clouds') {
+            setLabels('Jumlah Awan', 'Kecepatan Geser', 'Ukuran Awan', 'Arah Angin', 'Perubahan Bentuk', 'Area Langit', 'Kepadatan');
+            setSlider('inQty', 'valQty', 'qty', 800, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.0, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.1, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.8, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 0.8, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 65, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 90, '%');
+        } else if (mode === 'rain') {
+            setLabels('Raindrops', 'Fall Speed', 'Thickness', 'Wind Angle', 'Turbulence', 'Ground Splash', 'Detail');
+            setSlider('inQty', 'valQty', 'qty', 1800, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.4, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.0, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.8, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 0.5, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 55, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        } else if (mode === 'storm') {
+            setLabels('Storm Drops', 'Fall Speed', 'Thickness', 'Gale Wind', 'Turbulence', 'Ground Splash', 'Lightning');
+            setSlider('inQty', 'valQty', 'qty', 3400, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 2.2, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.3, 'x');
+            setSlider('inWind', 'valWind', 'wind', 1.8, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.5, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 85, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 75, '%');
+        } else if (mode === 'window') {
+            setLabels('Jumlah Embun', 'Laju Meluncur', 'Ukuran Tetes', 'Kemiringan', 'Kelokan Air', 'Tetes Meluncur', 'Jejak Air');
+            setSlider('inQty', 'valQty', 'qty', 1100, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.0, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.0, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.0, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.0, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 80, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 90, '%');
+        } else if (mode === 'autumn') {
+            setLabels('Jumlah Daun', 'Kecepatan Jatuh', 'Ukuran Daun', 'Angin Samping', 'Ayunan Daun', 'Sebaran', 'Detail');
+            setSlider('inQty', 'valQty', 'qty', 650, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.0, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.1, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.7, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.3, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 100, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        } else if (mode === 'sakura') {
+            setLabels('Petal Count', 'Fall Speed', 'Petal Size', 'Breeze Wind', 'Flutter Spin', 'Spread', 'Detail');
+            setSlider('inQty', 'valQty', 'qty', 700, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 1.0, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.1, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.8, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.4, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 100, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        } else if (mode === 'snow') {
+            setLabels('Snowflakes', 'Fall Speed', 'Flake Size', 'Wind Drift', 'Flutter Sway', 'Spread', 'Detail');
+            setSlider('inQty', 'valQty', 'qty', 1400, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 0.9, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.0, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.4, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.2, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 100, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        } else if (mode === 'dust') {
+            setLabels('Dust / Bokeh', 'Float Speed', 'Glow Size', 'Air Drift', 'Orbit Float', 'Spread', 'Detail');
+            setSlider('inQty', 'valQty', 'qty', 800, '');
+            setSlider('inSpeed', 'valSpeed', 'speed', 0.8, 'x');
+            setSlider('inSize', 'valSize', 'size', 1.0, 'x');
+            setSlider('inWind', 'valWind', 'wind', 0.2, '');
+            setSlider('inChaos', 'valChaos', 'chaos', 1.2, '');
+            setSlider('inExtra1', 'valExtra1', 'extra1', 100, '%');
+            setSlider('inExtra2', 'valExtra2', 'extra2', 100, '%');
+        }
+        buildParticles();
+    };
+
+    function setLabels(l1, l2, l3, l4, l5, l6, l7) {
+        document.getElementById('lblQty').innerText = l1;
+        document.getElementById('lblSpeed').innerText = l2;
+        document.getElementById('lblSize').innerText = l3;
+        document.getElementById('lblWind').innerText = l4;
+        document.getElementById('lblChaos').innerText = l5;
+        document.getElementById('lblExtra1').innerText = l6;
+        document.getElementById('lblExtra2').innerText = l7;
+    }
+
+    function setSlider(idIn, idVal, key, val, suffix) {
+        params[key] = parseFloat(val);
+        document.getElementById(idIn).value = val;
+        document.getElementById(idVal).innerText = val + suffix;
+    }
+
+    window.updateParam = function(key, val) {
+        val = parseFloat(val);
+        params[key] = val;
+        if (key === 'qty') { document.getElementById('valQty').innerText = val; buildParticles(); }
+        else if (key === 'speed') { document.getElementById('valSpeed').innerText = val.toFixed(1) + 'x'; buildParticles(); }
+        else if (key === 'size') { document.getElementById('valSize').innerText = val.toFixed(1) + 'x'; }
+        else if (key === 'wind') { document.getElementById('valWind').innerText = val.toFixed(1); }
+        else if (key === 'chaos') { document.getElementById('valChaos').innerText = val.toFixed(1); }
+        else if (key === 'extra1') { document.getElementById('valExtra1').innerText = val + '%'; }
+        else if (key === 'extra2') { document.getElementById('valExtra2').innerText = val + '%'; }
+    };
+
+    window.setResolution = function(res) {
+        if (isRecording) return;
+        if (gl && res === '4k' && 3840 > glMax) { alert('HP ini tidak mendukung 4K untuk WebGL. Gunakan 1080p.'); return; }
+        if (res === '720') { CURRENT_WIDTH = 1280; CURRENT_HEIGHT = 720; RESOLUTION_SCALE = 0.67; }
+        else if (res === '1080') { CURRENT_WIDTH = 1920; CURRENT_HEIGHT = 1080; RESOLUTION_SCALE = 1.0; }
+        else if (res === '4k') { CURRENT_WIDTH = 3840; CURRENT_HEIGHT = 2160; RESOLUTION_SCALE = 2.0; }
+        canvas.width = CURRENT_WIDTH; canvas.height = CURRENT_HEIGHT;
+        fx.width = CURRENT_WIDTH; fx.height = CURRENT_HEIGHT;
+        ['720', '1080', '4k'].forEach(r => { document.getElementById('res' + r).className = (r === res) ? 'res-active' : ''; });
+        fitScreen();
+    };
+
+    window.setDuration = function(sec) {
+        if (isRecording) return;
+        LOOP_DURATION = sec;
+        [5, 10, 15, 20, 30].forEach(d => {
+            document.getElementById('dur' + d).className = (d === sec) ? 'res-active' : '';
+        });
+        document.getElementById('btnRec').innerText = `💾 Save Video (${sec}s Loop)`;
+        buildParticles();
+    };
+
+    window.setFps = function(f) {
+        if (isRecording) return;
+        TARGET_FPS = f;
+        [24, 30, 60].forEach(v => { document.getElementById('fps' + v).className = (v === f) ? 'res-active' : ''; });
+    };
+
+    window.updateRot = function(axis, v) {
+        v = parseFloat(v);
+        if (axis === 'x') { rotX = v; document.getElementById('valRotX').innerText = v + '°'; }
+        else if (axis === 'y') { rotY = v; document.getElementById('valRotY').innerText = v + '°'; }
+        else { zoom3d = v; document.getElementById('valZoom').innerText = v.toFixed(2) + 'x'; }
+    };
+
+    window.reset3D = function() {
+        rotX = rotY = rotZ = 0; zoom3d = 1;
+        [['inRotX', 0, 'valRotX', '0°'], ['inRotY', 0, 'valRotY', '0°'], ['inZoom', 1, 'valZoom', '1.00x']]
+            .forEach(([i, val, l, t]) => { document.getElementById(i).value = val; document.getElementById(l).innerText = t; });
+    };
+
+    let lastRender = performance.now();
+    let fpsCount = 0, fpsStamp = lastRender;
+    const fpsInfo = document.getElementById('fpsInfo');
+
+    function loop(now) {
+        requestAnimationFrame(loop);
+
+        if (isRecording) {
+            const interval = 1000 / TARGET_FPS;
+            if (now - lastRender < interval - 2) return;
+            lastRender = now;
+
+            const exactTimeSec = exportFrameIdx / TARGET_FPS;
+            renderSeamlessFrame(exactTimeSec);
+            present();
+
+            if (videoTrack && videoTrack.requestFrame) videoTrack.requestFrame();
+
+            exportFrameIdx++;
+            const pct = Math.min(100, Math.round((exportFrameIdx / exportTotalFrames) * 100));
+            document.getElementById('btnOpenMenu').innerText = `⏺ Rendering ${pct}%`;
+            document.getElementById('btnRec').innerText = `⏹ Batal (${pct}%)`;
+
+            if (exportFrameIdx >= exportTotalFrames) {
+                finishAutoExport();
+            }
+            return;
+        }
+
+        const interval = 1000 / TARGET_FPS;
+        const elapsed = now - lastRender;
+        if (elapsed < interval - 2) return;
+        lastRender = (elapsed > interval * 2) ? now : lastRender + interval;
+
+        simClock = (simClock + (1 / TARGET_FPS)) % LOOP_DURATION;
+        renderSeamlessFrame(simClock);
+        present();
+
+        fpsCount++;
+        if (now - fpsStamp >= 1000) {
+            fpsInfo.innerText = fpsCount + ' fps';
+            fpsInfo.style.color = (fpsCount >= TARGET_FPS - 2) ? '#6c6' : '#e84';
+            fpsCount = 0; fpsStamp = now;
+        }
+    }
+
+    window.ambilFoto = function() {
+        const resName = (CURRENT_WIDTH === 1280) ? "720p" : (CURRENT_WIDTH === 1920) ? "1080p" : "4K";
+        canvas.toBlob((blob) => {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url; a.download = `VFX-${mode}-${resName}-${Date.now()}.png`; a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+        }, 'image/png');
+    };
+
+    function pickMime() {
+        const list = [
+            'video/mp4;codecs=avc1.640028',
+            'video/mp4;codecs=avc1',
+            'video/mp4',
+            'video/webm;codecs=vp8',
+            'video/webm;codecs=vp9',
+            'video/webm'
+        ];
+        for (const m of list) {
+            if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+        }
+        return '';
+    }
+
+    window.startAutoExport = async function() {
+        if (isRecording) {
+            finishAutoExport();
+            return;
+        }
+
+        const btn = document.getElementById('btnRec');
+        const btnOpen = document.getElementById('btnOpenMenu');
+
+        try {
+            const recMime = pickMime();
+            let stream = canvas.captureStream(0);
+            videoTrack = stream.getVideoTracks()[0];
+            if (!videoTrack || !videoTrack.requestFrame) {
+                stream = canvas.captureStream(TARGET_FPS);
+                videoTrack = null;
+            }
+
+            const bitrate = (CURRENT_WIDTH === 3840) ? 30000000 : (CURRENT_WIDTH === 1920) ? 14000000 : 7000000;
+            const opts = { videoBitsPerSecond: bitrate };
+            if (recMime) opts.mimeType = recMime;
+            mediaRecorder = new MediaRecorder(stream, opts);
+            chunks = [];
+
+            mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) chunks.push(e.data); };
+            mediaRecorder.onstop = () => {
+                const type = (mediaRecorder.mimeType || recMime || 'video/webm').split(';')[0];
+                const ext = type.includes('mp4') ? 'mp4' : 'webm';
+                const blob = new Blob(chunks, { type });
+                const url = URL.createObjectURL(blob);
+                const resName = (CURRENT_WIDTH === 1280) ? "720p" : (CURRENT_WIDTH === 1920) ? "1080p" : "4K";
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `VFX-${mode}-${LOOP_DURATION}s-LOOP-${resName}-${TARGET_FPS}fps.${ext}`;
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(url), 30000);
+                chunks = [];
+            };
+
+            try { if (navigator.wakeLock) wakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+
+            exportFrameIdx = 0;
+            exportTotalFrames = LOOP_DURATION * TARGET_FPS;
+
+            mediaRecorder.start(500);
+            isRecording = true;
+            btn.classList.add('recording');
+            btnOpen.classList.add('recording');
+            toggleMenu(false);
+        } catch (e) {
+            alert("Gagal memulai export video: " + e.message);
+        }
+    };
+
+    function finishAutoExport() {
+        isRecording = false;
+        try { mediaRecorder.stop(); } catch (e) {}
+        try { if (wakeLock) { wakeLock.release(); wakeLock = null; } } catch (e) {}
+        videoTrack = null;
+
+        const btn = document.getElementById('btnRec');
+        const btnOpen = document.getElementById('btnOpenMenu');
+        btn.innerText = `💾 Save Video (${LOOP_DURATION}s Loop)`;
+        btn.classList.remove('recording');
+        btnOpen.innerText = "⚙️ STUDIO VFX (12 EFEK)";
+        btnOpen.classList.remove('recording');
+        toggleMenu(true);
+    }
+
+    buildParticles();
+    requestAnimationFrame(loop);
+</script>
+</body>
+</html>
