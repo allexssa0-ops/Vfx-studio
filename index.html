@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>AtmosStudio — Pro Rain Canvas, VFX & Gallery</title>
+<title>AtmosStudio — Pen Tool Mask, Zoom & VFX</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -71,20 +71,20 @@
   .zoom-bar {
     display: flex; align-items: center; justify-content: space-between; gap: 6px;
     background: var(--card); border: 1px solid var(--border); border-radius: 10px;
-    padding: 8px 10px; margin-bottom: 14px;
+    padding: 8px 10px; margin-bottom: 14px; flex-wrap: wrap;
   }
-  .zoom-group { display: flex; align-items: center; gap: 6px; }
+  .zoom-group { display: flex; align-items: center; gap: 5px; }
   .z-btn {
     background: var(--card-2); border: 1px solid var(--border); color: var(--text);
-    padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer;
+    padding: 6px 9px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer;
   }
   .z-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
   .z-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-  .zoom-level { font-size: 12px; font-weight: 700; color: var(--amber); min-width: 42px; text-align: center; }
+  .zoom-level { font-size: 12px; font-weight: 700; color: var(--amber); min-width: 38px; text-align: center; }
 
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
   .label-sm { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 12px; }
   .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
   .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
   @media(min-width: 520px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
@@ -95,12 +95,19 @@
   }
   .opt-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
   .opt-btn.blue.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .opt-btn.green { background: rgba(16,185,129,0.2); border-color: var(--green); color: #6ee7b7; }
+  .opt-btn.red { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
 
   .brush-box {
     background: #13161f; border: 1px solid var(--border); border-radius: 10px;
     padding: 12px; margin-bottom: 14px;
   }
-  .brush-tip { font-size: 11px; color: #93c5fd; margin-bottom: 10px; line-height: 1.4; }
+  .brush-tip { font-size: 11px; color: #93c5fd; margin-bottom: 10px; line-height: 1.45; }
+
+  .pen-action-bar {
+    background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.3);
+    border-radius: 9px; padding: 10px; margin-bottom: 10px;
+  }
 
   .slider-row { margin-bottom: 12px; }
   .slider-row:last-child { margin-bottom: 0; }
@@ -157,7 +164,7 @@
     <div class="brand-dot"></div>
     <span>AtmosStudio</span>
   </div>
-  <span class="badge-free">Pro Mask + Zoom + Wind</span>
+  <span class="badge-free">Pen Tool Mask + Zoom + Wind</span>
 </header>
 
 <div class="nav-tabs">
@@ -172,7 +179,7 @@
   <div id="tab-canvas" class="section active">
     <div class="hero-title">
       <h1>Ubah Gambar Jadi Hujan & Salju</h1>
-      <p>Zoom area jendela, lukis dengan Kuas/Pensil, atur arah angin, lalu render ke Gallery</p>
+      <p>Gunakan ✒️ Pen Tool (titik sudut seperti CapCut PC) atau 🖌️ Kuas untuk seleksi kaca jendela</p>
     </div>
 
     <div class="stage-wrap" id="rainStageWrap">
@@ -185,8 +192,8 @@
     <!-- BAR KONTROL ZOOM, GESER & UNDO/REDO -->
     <div class="zoom-bar">
       <div class="zoom-group">
-        <button class="z-btn" id="btnUndo" onclick="undoMask()" disabled title="Urungkan (Undo)">↩️ Undo</button>
-        <button class="z-btn" id="btnRedo" onclick="redoMask()" disabled title="Ulangi (Redo)">↪️ Redo</button>
+        <button class="z-btn" id="btnUndo" onclick="undoAction()" disabled title="Urungkan (Undo)">↩️ Undo</button>
+        <button class="z-btn" id="btnRedo" onclick="redoAction()" disabled title="Ulangi (Redo)">↪️ Redo</button>
       </div>
       <div class="zoom-group">
         <button class="z-btn" id="btnPanMode" onclick="togglePanMode()">✋ Geser</button>
@@ -204,7 +211,7 @@
         <button class="opt-btn" id="sceneOutdoor" onclick="setScene('outdoor')">🌲 Outdoors (Seluruh Layar)</button>
       </div>
 
-      <!-- KONTROL MASKING: KUAS, PENSIL & PENGHAPUS -->
+      <!-- KONTROL MASKING: PEN TOOL (TITIK SUDUT), KUAS & PENGHAPUS -->
       <div class="brush-box" id="interiorControls">
         <div class="label-sm">
           <span>Alat Seleksi Kaca Jendela</span>
@@ -212,25 +219,37 @@
             <input type="checkbox" id="showMaskOverlay" checked> Tampilkan Biru
           </label>
         </div>
-        <div class="brush-tip">
-          💡 <b>Tips Presisi:</b> Gunakan <b>➕ Zoom</b> & <b>✋ Geser</b> untuk mendekati jendela kecil. Pakai <b>✏️ Pensil</b> untuk tepian kusen tegas, dan <b>↩️ Undo / ↪️ Redo</b> jika salah gores.
-        </div>
 
         <div class="grid-3">
-          <button class="opt-btn blue active" id="toolBrush" onclick="setBrushTool('brush')">🖌️ Kuas Lembut</button>
-          <button class="opt-btn blue" id="toolPencil" onclick="setBrushTool('pencil')">✏️ Pensil Tegas</button>
+          <button class="opt-btn blue active" id="toolPen" onclick="setBrushTool('pen')">✒️ Pen Tool (Titik)</button>
+          <button class="opt-btn blue" id="toolBrush" onclick="setBrushTool('brush')">🖌️ Kuas Bebas</button>
           <button class="opt-btn blue" id="toolEraser" onclick="setBrushTool('eraser')">🧽 Penghapus</button>
         </div>
 
-        <div class="grid-3" style="margin-bottom:10px;">
-          <button class="opt-btn" onclick="autoDetectWindowMask()">✨ Deteksi Otomatis</button>
-          <button class="opt-btn" onclick="fillAllWindowMask()">🪟 Pilih Semua</button>
-          <button class="opt-btn" onclick="clearWindowMask()">🗑️ Hapus Semua</button>
+        <!-- PANEL KHUSUS PEN TOOL (CAPCUT PC STYLE) -->
+        <div class="pen-action-bar" id="penControls">
+          <div class="brush-tip" style="margin-bottom:8px;">
+            ✒️ <b>Cara Pakai Pen Tool (Seperti CapCut PC):</b><br>
+            1. Ketuk di tiap <b>sudut kaca jendela</b> untuk menaruh titik (bisa geser titiknya jika kurang pas).<br>
+            2. Ketuk titik pertama (lingkaran hijau) atau tekan <b>Selesai & Isi Area</b> untuk mengunci bentuk jendela.
+          </div>
+          <div class="grid-3" style="margin-bottom:0;">
+            <button class="opt-btn green" onclick="closeAndFillPolygon()">✅ Isi Area (+)</button>
+            <button class="opt-btn red" onclick="closeAndErasePolygon()">✂️ Potong Area (-)</button>
+            <button class="opt-btn" onclick="cancelPenPoints()">✖️ Batal Titik</button>
+          </div>
         </div>
 
-        <div class="slider-row">
-          <div class="label-sm"><span>Ukuran Kuas / Pensil</span><span id="brushSizeVal">50 px</span></div>
-          <input type="range" id="brushSizeSlider" min="4" max="180" value="50" oninput="document.getElementById('brushSizeVal').textContent = this.value + ' px'">
+        <!-- PANEL SLIDER UKURAN KUAS / PENGHAPUS -->
+        <div class="slider-row" id="brushSizeRow" style="display:none; margin-bottom:10px;">
+          <div class="label-sm"><span>Ukuran Kuas / Penghapus</span><span id="brushSizeVal">50 px</span></div>
+          <input type="range" id="brushSizeSlider" min="6" max="180" value="50" oninput="document.getElementById('brushSizeVal').textContent = this.value + ' px'">
+        </div>
+
+        <div class="grid-3" style="margin-bottom:0;">
+          <button class="opt-btn" onclick="autoDetectWindowMask()">✨ Deteksi Otomatis</button>
+          <button class="opt-btn" onclick="fillAllWindowMask()">🪟 Pilih Semua</button>
+          <button class="opt-btn" onclick="clearWindowMask()">🗑️ Kosongkan</button>
         </div>
       </div>
 
@@ -248,7 +267,7 @@
       </div>
 
       <div class="slider-row" style="margin-bottom:14px;">
-        <div class="label-sm"><span>Wind Angle (Arah Jatuhnya Hujan / Salju)</span><span id="rainWindVal">0.4 (Kanan)</span></div>
+        <div class="label-sm"><span>Wind Angle (Arah Jatuhnya Hujan / Salju)</span><span id="rainWindVal">+0.4 (Miring Kanan)</span></div>
         <input type="range" id="rainWindSlider" min="-15" max="15" value="2" oninput="updateRainParams()">
       </div>
 
@@ -380,7 +399,7 @@ function switchTab(tab, btn) {
   if (tab === 'gallery') loadGallery();
 }
 
-// ================= TAB 1: RAIN CANVAS + UNDO/REDO + ZOOM/PAN =================
+// ================= TAB 1: RAIN CANVAS + PEN TOOL + UNDO/REDO + ZOOM =================
 const rainCanvas = document.getElementById('rainCanvas');
 const rCtx = rainCanvas.getContext('2d');
 const offImgCanvas = document.createElement('canvas');
@@ -397,19 +416,24 @@ const compPrevCtx = compositePreviewCanvas.getContext('2d');
 let loadedImg = null;
 let sceneMode = 'interior';
 let weatherPreset = 'light_rain';
-let brushTool = 'brush'; // 'brush', 'pencil', 'eraser'
+let brushTool = 'pen'; // default 'pen' (CapCut PC style), 'brush', 'eraser'
 let isDrawingMask = false;
 let lastDrawPt = null;
 let rainParticles = [];
 
-// Undo & Redo History Stacks (menyimpan ImageData dari offMaskCanvas)
+// Pen Tool (Polygon Anchor Points dalam koordinat 1920x1080)
+let penPoints = [];
+let penRedoPoints = [];
+let draggingPointIdx = -1;
+
+// Undo & Redo History Stacks untuk Mask Canvas
 let undoStack = [];
 let redoStack = [];
 const MAX_HISTORY = 25;
 
 // Zoom & Pan State
 let zoomLevel = 1.0;
-let panX = 0; // dalam koordinat kanvas 1280x720
+let panX = 0;
 let panY = 0;
 let isPanMode = false;
 let isPanning = false;
@@ -433,7 +457,14 @@ function saveMaskHistory() {
   updateHistoryButtons();
 }
 
-function undoMask() {
+// Undo / Redo pintar: jika sedang merangkai titik Pen Tool, urungkan titik sudutnya dulu;
+// jika tidak ada titik aktif, urungkan hasil masking sebelumnya.
+function undoAction() {
+  if (penPoints.length > 0) {
+    penRedoPoints.push(penPoints.pop());
+    updateHistoryButtons();
+    return;
+  }
   if (undoStack.length === 0) return;
   const current = offMaskCtx.getImageData(0, 0, offMaskCanvas.width, offMaskCanvas.height);
   redoStack.push(current);
@@ -442,7 +473,12 @@ function undoMask() {
   updateHistoryButtons();
 }
 
-function redoMask() {
+function redoAction() {
+  if (penRedoPoints.length > 0) {
+    penPoints.push(penRedoPoints.pop());
+    updateHistoryButtons();
+    return;
+  }
   if (redoStack.length === 0) return;
   const current = offMaskCtx.getImageData(0, 0, offMaskCanvas.width, offMaskCanvas.height);
   undoStack.push(current);
@@ -452,8 +488,61 @@ function redoMask() {
 }
 
 function updateHistoryButtons() {
-  document.getElementById('btnUndo').disabled = undoStack.length === 0;
-  document.getElementById('btnRedo').disabled = redoStack.length === 0;
+  document.getElementById('btnUndo').disabled = (penPoints.length === 0 && undoStack.length === 0);
+  document.getElementById('btnRedo').disabled = (penRedoPoints.length === 0 && redoStack.length === 0);
+}
+
+// Pen Tool Polygon Functions
+function closeAndFillPolygon() {
+  if (penPoints.length < 3) {
+    alert('Minimal buat 3 titik sudut untuk membentuk bidang jendela.');
+    return;
+  }
+  saveMaskHistory();
+  offMaskCtx.save();
+  offMaskCtx.globalCompositeOperation = 'source-over';
+  offMaskCtx.fillStyle = 'rgba(255,255,255,1)';
+  offMaskCtx.beginPath();
+  offMaskCtx.moveTo(penPoints[0].x, penPoints[0].y);
+  for (let i = 1; i < penPoints.length; i++) {
+    offMaskCtx.lineTo(penPoints[i].x, penPoints[i].y);
+  }
+  offMaskCtx.closePath();
+  offMaskCtx.fill();
+  offMaskCtx.restore();
+
+  penPoints = [];
+  penRedoPoints = [];
+  updateHistoryButtons();
+}
+
+function closeAndErasePolygon() {
+  if (penPoints.length < 3) {
+    alert('Minimal buat 3 titik sudut untuk memotong area (misal bingkai/kusen tengah jendela).');
+    return;
+  }
+  saveMaskHistory();
+  offMaskCtx.save();
+  offMaskCtx.globalCompositeOperation = 'destination-out';
+  offMaskCtx.fillStyle = 'rgba(0,0,0,1)';
+  offMaskCtx.beginPath();
+  offMaskCtx.moveTo(penPoints[0].x, penPoints[0].y);
+  for (let i = 1; i < penPoints.length; i++) {
+    offMaskCtx.lineTo(penPoints[i].x, penPoints[i].y);
+  }
+  offMaskCtx.closePath();
+  offMaskCtx.fill();
+  offMaskCtx.restore();
+
+  penPoints = [];
+  penRedoPoints = [];
+  updateHistoryButtons();
+}
+
+function cancelPenPoints() {
+  penPoints = [];
+  penRedoPoints = [];
+  updateHistoryButtons();
 }
 
 // Zoom & Pan Functions
@@ -472,7 +561,6 @@ function changeZoom(delta) {
     panX = 0; panY = 0;
     if (isPanMode) togglePanMode();
   } else {
-    // Zoom terpusat di tengah layar
     const cx = rainCanvas.width / 2, cy = rainCanvas.height / 2;
     panX = cx - (cx - panX) * (zoomLevel / oldZoom);
     panY = cy - (cy - panY) * (zoomLevel / oldZoom);
@@ -534,7 +622,7 @@ function prepareImageLayers() {
   const scale = Math.max(W / loadedImg.width, H / loadedImg.height);
   const nw = loadedImg.width * scale, nh = loadedImg.height * scale;
   offImgCtx.drawImage(loadedImg, (W - nw) / 2, (H - nh) / 2, nw, nh);
-  undoStack = []; redoStack = [];
+  undoStack = []; redoStack = []; penPoints = []; penRedoPoints = [];
   autoDetectWindowMask(false);
   updateHistoryButtons();
 }
@@ -557,43 +645,79 @@ function autoDetectWindowMask(recordHistory = true) {
 
 function clearWindowMask() {
   saveMaskHistory();
+  penPoints = []; penRedoPoints = [];
   offMaskCtx.clearRect(0, 0, offMaskCanvas.width, offMaskCanvas.height);
+  updateHistoryButtons();
 }
 
 function fillAllWindowMask() {
   saveMaskHistory();
+  penPoints = []; penRedoPoints = [];
   offMaskCtx.globalCompositeOperation = 'source-over';
   offMaskCtx.fillStyle = 'rgba(255,255,255,1)';
   offMaskCtx.fillRect(0, 0, offMaskCanvas.width, offMaskCanvas.height);
+  updateHistoryButtons();
 }
 
 function setBrushTool(tool) {
   brushTool = tool;
   if (isPanMode) togglePanMode();
+  document.getElementById('toolPen').classList.toggle('active', tool === 'pen');
   document.getElementById('toolBrush').classList.toggle('active', tool === 'brush');
-  document.getElementById('toolPencil').classList.toggle('active', tool === 'pencil');
   document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
+  document.getElementById('penControls').style.display = tool === 'pen' ? 'block' : 'none';
+  document.getElementById('brushSizeRow').style.display = tool === 'pen' ? 'none' : 'block';
   document.getElementById('showMaskOverlay').checked = true;
 }
 
-// Konversi sentuhan layar ke koordinat asli mask (memperhitungkan Zoom & Pan)
 function getMaskCoordsFromClient(clientX, clientY) {
   const rect = rainCanvas.getBoundingClientRect();
   const previewX = ((clientX - rect.left) / rect.width) * rainCanvas.width;
   const previewY = ((clientY - rect.top) / rect.height) * rainCanvas.height;
-  // Balikkan transformasi pan & zoom
   const unzoomedX = (previewX - panX) / zoomLevel;
   const unzoomedY = (previewY - panY) / zoomLevel;
   return {
-    x: (unzoomedX / rainCanvas.width) * offMaskCanvas.width,
-    y: (unzoomedY / rainCanvas.height) * offMaskCanvas.height
+    x: Math.min(offMaskCanvas.width, Math.max(0, (unzoomedX / rainCanvas.width) * offMaskCanvas.width)),
+    y: Math.min(offMaskCanvas.height, Math.max(0, (unzoomedY / rainCanvas.height) * offMaskCanvas.height))
   };
+}
+
+function findNearPointIndex(pt) {
+  const hitRadius = 42 / Math.sqrt(zoomLevel);
+  for (let i = 0; i < penPoints.length; i++) {
+    if (Math.hypot(penPoints[i].x - pt.x, penPoints[i].y - pt.y) <= hitRadius) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+function handlePenPointerDown(pt) {
+  document.getElementById('showMaskOverlay').checked = true;
+  const hitIdx = findNearPointIndex(pt);
+
+  // Jika mengetuk titik pertama saat sudah ada >= 3 titik, langsung tutup & isi area!
+  if (hitIdx === 0 && penPoints.length >= 3) {
+    closeAndFillPolygon();
+    return;
+  }
+
+  // Jika mengetuk titik yang sudah ada, aktifkan drag untuk menggeser titik tersebut
+  if (hitIdx !== -1) {
+    draggingPointIdx = hitIdx;
+    return;
+  }
+
+  // Tambah titik sudut baru
+  penPoints.push(pt);
+  penRedoPoints = [];
+  draggingPointIdx = penPoints.length - 1;
+  updateHistoryButtons();
 }
 
 function drawMaskStroke(pt1, pt2) {
   if (sceneMode !== 'interior') return;
   const baseRadius = parseInt(document.getElementById('brushSizeSlider').value) * 1.4;
-  // Kecilkan radius proporsional saat di-zoom agar goresan tetap presisi
   const radius = Math.max(3, baseRadius / Math.sqrt(zoomLevel));
 
   offMaskCtx.save();
@@ -608,17 +732,7 @@ function drawMaskStroke(pt1, pt2) {
     offMaskCtx.moveTo(pt1.x, pt1.y);
     offMaskCtx.lineTo(pt2.x, pt2.y);
     offMaskCtx.stroke();
-  } else if (brushTool === 'pencil') {
-    // Pensil: tepian 100% tegas tanpa blur untuk sudut kusen jendela
-    offMaskCtx.globalCompositeOperation = 'source-over';
-    offMaskCtx.strokeStyle = 'rgba(255,255,255,1)';
-    offMaskCtx.lineWidth = radius * 1.5;
-    offMaskCtx.beginPath();
-    offMaskCtx.moveTo(pt1.x, pt1.y);
-    offMaskCtx.lineTo(pt2.x, pt2.y);
-    offMaskCtx.stroke();
   } else {
-    // Kuas lembut: tepian sedikit soft (shadowBlur) agar menyatu alami
     offMaskCtx.globalCompositeOperation = 'source-over';
     offMaskCtx.strokeStyle = 'rgba(255,255,255,0.95)';
     offMaskCtx.shadowColor = 'rgba(255,255,255,0.9)';
@@ -632,10 +746,11 @@ function drawMaskStroke(pt1, pt2) {
   offMaskCtx.restore();
 }
 
-// Touch & Mouse Handling (Mendukung 1 jari lukis/geser & 2 jari pinch-to-zoom)
+// Touch & Mouse Handling
 rainCanvas.addEventListener('touchstart', (e) => {
   if (e.touches.length === 2) {
     isDrawingMask = false;
+    draggingPointIdx = -1;
     isPanning = true;
     const dx = e.touches[0].clientX - e.touches[1].clientX;
     const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -652,6 +767,9 @@ rainCanvas.addEventListener('touchstart', (e) => {
     if (isPanMode || sceneMode !== 'interior') {
       isPanning = true;
       lastPanClient = { x: t.clientX, y: t.clientY };
+    } else if (brushTool === 'pen') {
+      const pt = getMaskCoordsFromClient(t.clientX, t.clientY);
+      handlePenPointerDown(pt);
     } else {
       saveMaskHistory();
       isDrawingMask = true;
@@ -694,6 +812,8 @@ rainCanvas.addEventListener('touchmove', (e) => {
       panY += ((t.clientY - lastPanClient.y) / rect.height) * rainCanvas.height;
       lastPanClient = { x: t.clientX, y: t.clientY };
       clampPan();
+    } else if (brushTool === 'pen' && draggingPointIdx !== -1 && penPoints[draggingPointIdx]) {
+      penPoints[draggingPointIdx] = getMaskCoordsFromClient(t.clientX, t.clientY);
     } else if (isDrawingMask && lastDrawPt) {
       const currPt = getMaskCoordsFromClient(t.clientX, t.clientY);
       drawMaskStroke(lastDrawPt, currPt);
@@ -703,7 +823,7 @@ rainCanvas.addEventListener('touchmove', (e) => {
 }, { passive: false });
 
 rainCanvas.addEventListener('touchend', () => {
-  isDrawingMask = false; isPanning = false;
+  isDrawingMask = false; isPanning = false; draggingPointIdx = -1;
   lastDrawPt = null; lastPanClient = null; initialPinchDist = null;
 });
 
@@ -712,6 +832,9 @@ rainCanvas.addEventListener('mousedown', (e) => {
   if (isPanMode || sceneMode !== 'interior') {
     isPanning = true;
     lastPanClient = { x: e.clientX, y: e.clientY };
+  } else if (brushTool === 'pen') {
+    const pt = getMaskCoordsFromClient(e.clientX, e.clientY);
+    handlePenPointerDown(pt);
   } else {
     saveMaskHistory();
     isDrawingMask = true;
@@ -728,6 +851,8 @@ window.addEventListener('mousemove', (e) => {
     panY += ((e.clientY - lastPanClient.y) / rect.height) * rainCanvas.height;
     lastPanClient = { x: e.clientX, y: e.clientY };
     clampPan();
+  } else if (brushTool === 'pen' && draggingPointIdx !== -1 && penPoints[draggingPointIdx]) {
+    penPoints[draggingPointIdx] = getMaskCoordsFromClient(e.clientX, e.clientY);
   } else if (isDrawingMask && lastDrawPt) {
     const currPt = getMaskCoordsFromClient(e.clientX, e.clientY);
     drawMaskStroke(lastDrawPt, currPt);
@@ -736,7 +861,8 @@ window.addEventListener('mousemove', (e) => {
 });
 
 window.addEventListener('mouseup', () => {
-  isDrawingMask = false; isPanning = false; lastDrawPt = null; lastPanClient = null;
+  isDrawingMask = false; isPanning = false; draggingPointIdx = -1;
+  lastDrawPt = null; lastPanClient = null;
 });
 
 function setScene(mode) {
@@ -790,7 +916,6 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
 
   const cfg = WEATHER_CONFIG[weatherPreset];
   const brightness = parseInt(document.getElementById('brightSlider').value) / 100;
-  // Arah angin dari slider (-15 sampai +15) dikonversi ke kecepatan horizontal normalisasi
   const windNorm = (parseInt(document.getElementById('rainWindSlider').value) / 2) / 1280;
 
   for (let p of rainParticles) {
@@ -834,15 +959,66 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
 
   targetCtx.drawImage(offWeatherCanvas, 0, 0, W, H);
 
-  if (showGuide && sceneMode === 'interior' && document.getElementById('showMaskOverlay').checked) {
-    offBlueGuideCanvas.width = W; offBlueGuideCanvas.height = H;
-    offBlueGuideCtx.clearRect(0, 0, W, H);
-    offBlueGuideCtx.fillStyle = 'rgba(59, 130, 246, 0.35)';
-    offBlueGuideCtx.fillRect(0, 0, W, H);
-    offBlueGuideCtx.globalCompositeOperation = 'destination-in';
-    offBlueGuideCtx.drawImage(offMaskCanvas, 0, 0, W, H);
-    offBlueGuideCtx.globalCompositeOperation = 'source-over';
-    targetCtx.drawImage(offBlueGuideCanvas, 0, 0, W, H);
+  if (showGuide && sceneMode === 'interior') {
+    if (document.getElementById('showMaskOverlay').checked) {
+      offBlueGuideCanvas.width = W; offBlueGuideCanvas.height = H;
+      offBlueGuideCtx.clearRect(0, 0, W, H);
+      offBlueGuideCtx.fillStyle = 'rgba(59, 130, 246, 0.35)';
+      offBlueGuideCtx.fillRect(0, 0, W, H);
+      offBlueGuideCtx.globalCompositeOperation = 'destination-in';
+      offBlueGuideCtx.drawImage(offMaskCanvas, 0, 0, W, H);
+      offBlueGuideCtx.globalCompositeOperation = 'source-over';
+      targetCtx.drawImage(offBlueGuideCanvas, 0, 0, W, H);
+    }
+
+    // Gambar garis & titik sudut Pen Tool (hanya saat preview, tidak ikut ter-render ke video)
+    if (penPoints.length > 0) {
+      const scaleX = W / offMaskCanvas.width;
+      const scaleY = H / offMaskCanvas.height;
+      targetCtx.save();
+
+      // Isi bayangan poligon sementara
+      if (penPoints.length >= 3) {
+        targetCtx.fillStyle = 'rgba(245, 158, 11, 0.22)';
+        targetCtx.beginPath();
+        targetCtx.moveTo(penPoints[0].x * scaleX, penPoints[0].y * scaleY);
+        for (let i = 1; i < penPoints.length; i++) {
+          targetCtx.lineTo(penPoints[i].x * scaleX, penPoints[i].y * scaleY);
+        }
+        targetCtx.closePath();
+        targetCtx.fill();
+      }
+
+      // Garis penghubung antar titik sudut
+      targetCtx.strokeStyle = '#f59e0b';
+      targetCtx.lineWidth = Math.max(2, 3 / Math.sqrt(zoomLevel));
+      targetCtx.beginPath();
+      targetCtx.moveTo(penPoints[0].x * scaleX, penPoints[0].y * scaleY);
+      for (let i = 1; i < penPoints.length; i++) {
+        targetCtx.lineTo(penPoints[i].x * scaleX, penPoints[i].y * scaleY);
+      }
+      if (penPoints.length >= 3) {
+        targetCtx.setLineDash([6, 6]);
+        targetCtx.lineTo(penPoints[0].x * scaleX, penPoints[0].y * scaleY);
+      }
+      targetCtx.stroke();
+      targetCtx.setLineDash([]);
+
+      // Titik-titik sudut (Anchor Nodes)
+      const nodeR = Math.max(5, 8 / Math.sqrt(zoomLevel));
+      for (let i = 0; i < penPoints.length; i++) {
+        const nx = penPoints[i].x * scaleX;
+        const ny = penPoints[i].y * scaleY;
+        targetCtx.beginPath();
+        targetCtx.arc(nx, ny, i === 0 ? nodeR * 1.25 : nodeR, 0, Math.PI * 2);
+        targetCtx.fillStyle = i === 0 ? '#10b981' : '#ffffff';
+        targetCtx.fill();
+        targetCtx.lineWidth = Math.max(1.5, 2.5 / Math.sqrt(zoomLevel));
+        targetCtx.strokeStyle = '#111827';
+        targetCtx.stroke();
+      }
+      targetCtx.restore();
+    }
   }
 }
 
@@ -935,7 +1111,6 @@ function animateLoop() {
     compositePreviewCanvas.height = H;
     renderRainFrame(compPrevCtx, W, H, true, true);
 
-    // Terapkan transformasi Zoom & Pan pada layar preview
     rCtx.clearRect(0, 0, W, H);
     rCtx.save();
     rCtx.translate(panX, panY);
@@ -983,7 +1158,6 @@ async function exportCanvasVideo(mode) {
   recCanvas.width = W; recCanvas.height = H;
   const recCtx = recCanvas.getContext('2d');
 
-  // Render selalu 100% penuh (tanpa zoom & tanpa highlight biru)
   if (isRain) renderRainFrame(recCtx, W, H, false, false); else renderVfxFrame(recCtx, W, H, false);
   const thumbUrl = recCanvas.toDataURL('image/jpeg', 0.75);
 
