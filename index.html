@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>AtmosStudio — Rain Canvas, VFX & Gallery</title>
+<title>AtmosStudio — Pro Rain Canvas, VFX & Gallery</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -13,6 +13,7 @@
     --amber: #f59e0b;
     --amber-hover: #d97706;
     --purple: #8b5cf6;
+    --blue: #3b82f6;
     --text: #f3f4f6;
     --muted: #9ca3af;
     --green: #10b981;
@@ -50,7 +51,7 @@
 
   .stage-wrap {
     position: relative; width: 100%; aspect-ratio: 16/9; background: #090a0f;
-    border-radius: 14px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 14px;
+    border-radius: 14px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 10px;
     touch-action: none;
   }
   canvas { width: 100%; height: 100%; display: block; }
@@ -58,7 +59,7 @@
     position: absolute; top: 10px; left: 10px; background: rgba(15,17,23,0.75);
     backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 99px;
     font-size: 11px; color: var(--green); border: 1px solid rgba(16,185,129,0.3);
-    display: flex; align-items: center; gap: 5px; pointer-events: none;
+    display: flex; align-items: center; gap: 5px; pointer-events: none; z-index: 10;
   }
   .stage-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
   .upload-overlay-btn {
@@ -66,10 +67,25 @@
     border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; z-index: 10;
   }
 
+  /* Zoom & Pan Floating Bar */
+  .zoom-bar {
+    display: flex; align-items: center; justify-content: space-between; gap: 6px;
+    background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+    padding: 8px 10px; margin-bottom: 14px;
+  }
+  .zoom-group { display: flex; align-items: center; gap: 6px; }
+  .z-btn {
+    background: var(--card-2); border: 1px solid var(--border); color: var(--text);
+    padding: 6px 10px; border-radius: 7px; font-size: 12px; font-weight: 700; cursor: pointer;
+  }
+  .z-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
+  .z-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .zoom-level { font-size: 12px; font-weight: 700; color: var(--amber); min-width: 42px; text-align: center; }
+
   .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
   .label-sm { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
-  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 10px; }
   .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
   @media(min-width: 520px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
 
@@ -78,7 +94,7 @@
     padding: 10px 6px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center;
   }
   .opt-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
-  .opt-btn.blue.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+  .opt-btn.blue.active { background: var(--blue); color: #fff; border-color: var(--blue); }
 
   .brush-box {
     background: #13161f; border: 1px solid var(--border); border-radius: 10px;
@@ -141,7 +157,7 @@
     <div class="brand-dot"></div>
     <span>AtmosStudio</span>
   </div>
-  <span class="badge-free">Window Brush + Full 16:9</span>
+  <span class="badge-free">Pro Mask + Zoom + Wind</span>
 </header>
 
 <div class="nav-tabs">
@@ -156,7 +172,7 @@
   <div id="tab-canvas" class="section active">
     <div class="hero-title">
       <h1>Ubah Gambar Jadi Hujan & Salju</h1>
-      <p>Upload gambar, usap kaca jendela dengan Kuas jika perlu, lalu render ke Gallery</p>
+      <p>Zoom area jendela, lukis dengan Kuas/Pensil, atur arah angin, lalu render ke Gallery</p>
     </div>
 
     <div class="stage-wrap" id="rainStageWrap">
@@ -166,6 +182,21 @@
       <input type="file" id="imgInput" accept="image/*" hidden>
     </div>
 
+    <!-- BAR KONTROL ZOOM, GESER & UNDO/REDO -->
+    <div class="zoom-bar">
+      <div class="zoom-group">
+        <button class="z-btn" id="btnUndo" onclick="undoMask()" disabled title="Urungkan (Undo)">↩️ Undo</button>
+        <button class="z-btn" id="btnRedo" onclick="redoMask()" disabled title="Ulangi (Redo)">↪️ Redo</button>
+      </div>
+      <div class="zoom-group">
+        <button class="z-btn" id="btnPanMode" onclick="togglePanMode()">✋ Geser</button>
+        <button class="z-btn" onclick="changeZoom(-0.5)">➖</button>
+        <span class="zoom-level" id="zoomVal">1.0x</span>
+        <button class="z-btn" onclick="changeZoom(0.5)">➕</button>
+        <button class="z-btn" onclick="resetZoom()">Reset</button>
+      </div>
+    </div>
+
     <div class="panel">
       <div class="label-sm"><span>Scene Mode</span><span id="maskHint" style="color:var(--amber)">Interior Window Mask</span></div>
       <div class="grid-2">
@@ -173,32 +204,33 @@
         <button class="opt-btn" id="sceneOutdoor" onclick="setScene('outdoor')">🌲 Outdoors (Seluruh Layar)</button>
       </div>
 
-      <!-- KONTROL MASKING & KUAS JENDELA (KHUSUS INTERIOR) -->
+      <!-- KONTROL MASKING: KUAS, PENSIL & PENGHAPUS -->
       <div class="brush-box" id="interiorControls">
         <div class="label-sm">
           <span>Alat Seleksi Kaca Jendela</span>
           <label style="color:#60a5fa; cursor:pointer; display:flex; align-items:center; gap:5px; text-transform:none;">
-            <input type="checkbox" id="showMaskOverlay" checked> Tampilkan Area Jendela (Biru)
+            <input type="checkbox" id="showMaskOverlay" checked> Tampilkan Biru
           </label>
         </div>
         <div class="brush-tip">
-          💡 <b>Cara Pakai:</b> Usapkan jari langsung di gambar di atas pada bagian <b>kaca jendela</b>. Area berwarna biru adalah tempat hujan/salju akan turun.
+          💡 <b>Tips Presisi:</b> Gunakan <b>➕ Zoom</b> & <b>✋ Geser</b> untuk mendekati jendela kecil. Pakai <b>✏️ Pensil</b> untuk tepian kusen tegas, dan <b>↩️ Undo / ↪️ Redo</b> jika salah gores.
         </div>
 
         <div class="grid-3">
-          <button class="opt-btn blue active" id="toolBrush" onclick="setBrushTool('brush')">🖌️ Kuas Jendela</button>
+          <button class="opt-btn blue active" id="toolBrush" onclick="setBrushTool('brush')">🖌️ Kuas Lembut</button>
+          <button class="opt-btn blue" id="toolPencil" onclick="setBrushTool('pencil')">✏️ Pensil Tegas</button>
           <button class="opt-btn blue" id="toolEraser" onclick="setBrushTool('eraser')">🧽 Penghapus</button>
+        </div>
+
+        <div class="grid-3" style="margin-bottom:10px;">
+          <button class="opt-btn" onclick="autoDetectWindowMask()">✨ Deteksi Otomatis</button>
+          <button class="opt-btn" onclick="fillAllWindowMask()">🪟 Pilih Semua</button>
           <button class="opt-btn" onclick="clearWindowMask()">🗑️ Hapus Semua</button>
         </div>
 
-        <div class="grid-2" style="margin-bottom:10px;">
-          <button class="opt-btn" onclick="autoDetectWindowMask()">✨ Deteksi Otomatis</button>
-          <button class="opt-btn" onclick="fillAllWindowMask()">🪟 Pilih Seluruh Layar</button>
-        </div>
-
         <div class="slider-row">
-          <div class="label-sm"><span>Ukuran Kuas</span><span id="brushSizeVal">65 px</span></div>
-          <input type="range" id="brushSizeSlider" min="15" max="180" value="65" oninput="document.getElementById('brushSizeVal').textContent = this.value + ' px'">
+          <div class="label-sm"><span>Ukuran Kuas / Pensil</span><span id="brushSizeVal">50 px</span></div>
+          <input type="range" id="brushSizeSlider" min="4" max="180" value="50" oninput="document.getElementById('brushSizeVal').textContent = this.value + ' px'">
         </div>
       </div>
 
@@ -210,9 +242,14 @@
         <button class="opt-btn" onclick="setWeather('heavy_snow', this)">❄️ Salju Lebat</button>
       </div>
 
-      <div class="slider-row" style="margin-bottom:14px;">
+      <div class="slider-row">
         <div class="label-sm"><span>Effect Brightness (Ketajaman Hujan/Salju)</span><span id="brightVal">85%</span></div>
         <input type="range" id="brightSlider" min="20" max="100" value="85" oninput="updateRainParams()">
+      </div>
+
+      <div class="slider-row" style="margin-bottom:14px;">
+        <div class="label-sm"><span>Wind Angle (Arah Jatuhnya Hujan / Salju)</span><span id="rainWindVal">0.4 (Kanan)</span></div>
+        <input type="range" id="rainWindSlider" min="-15" max="15" value="2" oninput="updateRainParams()">
       </div>
 
       <div class="export-row">
@@ -343,7 +380,7 @@ function switchTab(tab, btn) {
   if (tab === 'gallery') loadGallery();
 }
 
-// ================= TAB 1: RAIN CANVAS + WINDOW BRUSH ENGINE =================
+// ================= TAB 1: RAIN CANVAS + UNDO/REDO + ZOOM/PAN =================
 const rainCanvas = document.getElementById('rainCanvas');
 const rCtx = rainCanvas.getContext('2d');
 const offImgCanvas = document.createElement('canvas');
@@ -354,21 +391,106 @@ const offWeatherCanvas = document.createElement('canvas');
 const offWeatherCtx = offWeatherCanvas.getContext('2d');
 const offBlueGuideCanvas = document.createElement('canvas');
 const offBlueGuideCtx = offBlueGuideCanvas.getContext('2d');
+const compositePreviewCanvas = document.createElement('canvas');
+const compPrevCtx = compositePreviewCanvas.getContext('2d');
 
 let loadedImg = null;
 let sceneMode = 'interior';
 let weatherPreset = 'light_rain';
-let brushTool = 'brush'; // 'brush' or 'eraser'
+let brushTool = 'brush'; // 'brush', 'pencil', 'eraser'
 let isDrawingMask = false;
 let lastDrawPt = null;
 let rainParticles = [];
 
+// Undo & Redo History Stacks (menyimpan ImageData dari offMaskCanvas)
+let undoStack = [];
+let redoStack = [];
+const MAX_HISTORY = 25;
+
+// Zoom & Pan State
+let zoomLevel = 1.0;
+let panX = 0; // dalam koordinat kanvas 1280x720
+let panY = 0;
+let isPanMode = false;
+let isPanning = false;
+let lastPanClient = null;
+let initialPinchDist = null;
+let initialPinchZoom = 1.0;
+
 const WEATHER_CONFIG = {
-  light_rain: { count: 650,  speedY: 0.024, speedX: 0.0018, len: 0.032, width: 0.0016, isSnow: false },
-  heavy_rain: { count: 1800, speedY: 0.042, speedX: 0.0042, len: 0.048, width: 0.0022, isSnow: false },
-  light_snow: { count: 450,  speedY: 0.0035, speedX: 0.0010, len: 0.0032, width: 0.0032, isSnow: true },
-  heavy_snow: { count: 1400, speedY: 0.0065, speedX: 0.0022, len: 0.0045, width: 0.0045, isSnow: true }
+  light_rain: { count: 650,  speedY: 0.024, len: 0.032, width: 0.0016, isSnow: false },
+  heavy_rain: { count: 1800, speedY: 0.042, len: 0.048, width: 0.0022, isSnow: false },
+  light_snow: { count: 450,  speedY: 0.0035, len: 0.0032, width: 0.0032, isSnow: true },
+  heavy_snow: { count: 1400, speedY: 0.0065, len: 0.0045, width: 0.0045, isSnow: true }
 };
+
+function saveMaskHistory() {
+  if (offMaskCanvas.width === 0) return;
+  const snap = offMaskCtx.getImageData(0, 0, offMaskCanvas.width, offMaskCanvas.height);
+  undoStack.push(snap);
+  if (undoStack.length > MAX_HISTORY) undoStack.shift();
+  redoStack = [];
+  updateHistoryButtons();
+}
+
+function undoMask() {
+  if (undoStack.length === 0) return;
+  const current = offMaskCtx.getImageData(0, 0, offMaskCanvas.width, offMaskCanvas.height);
+  redoStack.push(current);
+  const prev = undoStack.pop();
+  offMaskCtx.putImageData(prev, 0, 0);
+  updateHistoryButtons();
+}
+
+function redoMask() {
+  if (redoStack.length === 0) return;
+  const current = offMaskCtx.getImageData(0, 0, offMaskCanvas.width, offMaskCanvas.height);
+  undoStack.push(current);
+  const next = redoStack.pop();
+  offMaskCtx.putImageData(next, 0, 0);
+  updateHistoryButtons();
+}
+
+function updateHistoryButtons() {
+  document.getElementById('btnUndo').disabled = undoStack.length === 0;
+  document.getElementById('btnRedo').disabled = redoStack.length === 0;
+}
+
+// Zoom & Pan Functions
+function clampPan() {
+  const W = rainCanvas.width, H = rainCanvas.height;
+  const minX = W - (W * zoomLevel);
+  const minY = H - (H * zoomLevel);
+  panX = Math.min(0, Math.max(minX, panX));
+  panY = Math.min(0, Math.max(minY, panY));
+}
+
+function changeZoom(delta) {
+  const oldZoom = zoomLevel;
+  zoomLevel = Math.min(5.0, Math.max(1.0, +(zoomLevel + delta).toFixed(2)));
+  if (zoomLevel === 1.0) {
+    panX = 0; panY = 0;
+    if (isPanMode) togglePanMode();
+  } else {
+    // Zoom terpusat di tengah layar
+    const cx = rainCanvas.width / 2, cy = rainCanvas.height / 2;
+    panX = cx - (cx - panX) * (zoomLevel / oldZoom);
+    panY = cy - (cy - panY) * (zoomLevel / oldZoom);
+    clampPan();
+  }
+  document.getElementById('zoomVal').textContent = zoomLevel.toFixed(1) + 'x';
+}
+
+function resetZoom() {
+  zoomLevel = 1.0; panX = 0; panY = 0;
+  if (isPanMode) togglePanMode();
+  document.getElementById('zoomVal').textContent = '1.0x';
+}
+
+function togglePanMode() {
+  isPanMode = !isPanMode;
+  document.getElementById('btnPanMode').classList.toggle('active', isPanMode);
+}
 
 function createDefaultRoomImage() {
   const c = document.createElement('canvas');
@@ -398,7 +520,7 @@ document.getElementById('imgInput').addEventListener('change', (e) => {
   const reader = new FileReader();
   reader.onload = (ev) => {
     const img = new Image();
-    img.onload = () => { loadedImg = img; prepareImageLayers(); };
+    img.onload = () => { loadedImg = img; resetZoom(); prepareImageLayers(); };
     img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
@@ -412,11 +534,13 @@ function prepareImageLayers() {
   const scale = Math.max(W / loadedImg.width, H / loadedImg.height);
   const nw = loadedImg.width * scale, nh = loadedImg.height * scale;
   offImgCtx.drawImage(loadedImg, (W - nw) / 2, (H - nh) / 2, nw, nh);
-  autoDetectWindowMask();
+  undoStack = []; redoStack = [];
+  autoDetectWindowMask(false);
+  updateHistoryButtons();
 }
 
-// Deteksi awal area terang (kaca jendela), lalu user bisa koreksi pakai kuas
-function autoDetectWindowMask() {
+function autoDetectWindowMask(recordHistory = true) {
+  if (recordHistory) saveMaskHistory();
   const W = 1920, H = 1080;
   offMaskCanvas.width = W; offMaskCanvas.height = H;
   offMaskCtx.drawImage(offImgCanvas, 0, 0);
@@ -432,10 +556,12 @@ function autoDetectWindowMask() {
 }
 
 function clearWindowMask() {
+  saveMaskHistory();
   offMaskCtx.clearRect(0, 0, offMaskCanvas.width, offMaskCanvas.height);
 }
 
 function fillAllWindowMask() {
+  saveMaskHistory();
   offMaskCtx.globalCompositeOperation = 'source-over';
   offMaskCtx.fillStyle = 'rgba(255,255,255,1)';
   offMaskCtx.fillRect(0, 0, offMaskCanvas.width, offMaskCanvas.height);
@@ -443,61 +569,175 @@ function fillAllWindowMask() {
 
 function setBrushTool(tool) {
   brushTool = tool;
+  if (isPanMode) togglePanMode();
   document.getElementById('toolBrush').classList.toggle('active', tool === 'brush');
+  document.getElementById('toolPencil').classList.toggle('active', tool === 'pencil');
   document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
   document.getElementById('showMaskOverlay').checked = true;
 }
 
-// Event sentuh & mouse untuk melukis area jendela langsung di kanvas
-function getCanvasCoords(e) {
+// Konversi sentuhan layar ke koordinat asli mask (memperhitungkan Zoom & Pan)
+function getMaskCoordsFromClient(clientX, clientY) {
   const rect = rainCanvas.getBoundingClientRect();
-  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const previewX = ((clientX - rect.left) / rect.width) * rainCanvas.width;
+  const previewY = ((clientY - rect.top) / rect.height) * rainCanvas.height;
+  // Balikkan transformasi pan & zoom
+  const unzoomedX = (previewX - panX) / zoomLevel;
+  const unzoomedY = (previewY - panY) / zoomLevel;
   return {
-    x: ((clientX - rect.left) / rect.width) * offMaskCanvas.width,
-    y: ((clientY - rect.top) / rect.height) * offMaskCanvas.height
+    x: (unzoomedX / rainCanvas.width) * offMaskCanvas.width,
+    y: (unzoomedY / rainCanvas.height) * offMaskCanvas.height
   };
 }
 
 function drawMaskStroke(pt1, pt2) {
   if (sceneMode !== 'interior') return;
-  const radius = parseInt(document.getElementById('brushSizeSlider').value) * 1.5;
+  const baseRadius = parseInt(document.getElementById('brushSizeSlider').value) * 1.4;
+  // Kecilkan radius proporsional saat di-zoom agar goresan tetap presisi
+  const radius = Math.max(3, baseRadius / Math.sqrt(zoomLevel));
+
   offMaskCtx.save();
+  offMaskCtx.lineCap = 'round';
+  offMaskCtx.lineJoin = 'round';
+
   if (brushTool === 'eraser') {
     offMaskCtx.globalCompositeOperation = 'destination-out';
     offMaskCtx.strokeStyle = 'rgba(0,0,0,1)';
-    offMaskCtx.fillStyle = 'rgba(0,0,0,1)';
-  } else {
+    offMaskCtx.lineWidth = radius * 2;
+    offMaskCtx.beginPath();
+    offMaskCtx.moveTo(pt1.x, pt1.y);
+    offMaskCtx.lineTo(pt2.x, pt2.y);
+    offMaskCtx.stroke();
+  } else if (brushTool === 'pencil') {
+    // Pensil: tepian 100% tegas tanpa blur untuk sudut kusen jendela
     offMaskCtx.globalCompositeOperation = 'source-over';
     offMaskCtx.strokeStyle = 'rgba(255,255,255,1)';
-    offMaskCtx.fillStyle = 'rgba(255,255,255,1)';
+    offMaskCtx.lineWidth = radius * 1.5;
+    offMaskCtx.beginPath();
+    offMaskCtx.moveTo(pt1.x, pt1.y);
+    offMaskCtx.lineTo(pt2.x, pt2.y);
+    offMaskCtx.stroke();
+  } else {
+    // Kuas lembut: tepian sedikit soft (shadowBlur) agar menyatu alami
+    offMaskCtx.globalCompositeOperation = 'source-over';
+    offMaskCtx.strokeStyle = 'rgba(255,255,255,0.95)';
+    offMaskCtx.shadowColor = 'rgba(255,255,255,0.9)';
+    offMaskCtx.shadowBlur = Math.max(4, radius * 0.35);
+    offMaskCtx.lineWidth = radius * 2;
+    offMaskCtx.beginPath();
+    offMaskCtx.moveTo(pt1.x, pt1.y);
+    offMaskCtx.lineTo(pt2.x, pt2.y);
+    offMaskCtx.stroke();
   }
-  offMaskCtx.lineCap = 'round';
-  offMaskCtx.lineJoin = 'round';
-  offMaskCtx.lineWidth = radius * 2;
-  offMaskCtx.beginPath();
-  offMaskCtx.moveTo(pt1.x, pt1.y);
-  offMaskCtx.lineTo(pt2.x, pt2.y);
-  offMaskCtx.stroke();
   offMaskCtx.restore();
 }
 
-rainCanvas.addEventListener('pointerdown', (e) => {
-  if (sceneMode !== 'interior') return;
-  isDrawingMask = true;
-  document.getElementById('showMaskOverlay').checked = true;
-  lastDrawPt = getCanvasCoords(e);
-  drawMaskStroke(lastDrawPt, lastDrawPt);
+// Touch & Mouse Handling (Mendukung 1 jari lukis/geser & 2 jari pinch-to-zoom)
+rainCanvas.addEventListener('touchstart', (e) => {
+  if (e.touches.length === 2) {
+    isDrawingMask = false;
+    isPanning = true;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    initialPinchDist = Math.hypot(dx, dy);
+    initialPinchZoom = zoomLevel;
+    lastPanClient = {
+      x: (e.touches[0].clientX + e.touches[1].clientX) / 2,
+      y: (e.touches[0].clientY + e.touches[1].clientY) / 2
+    };
+    return;
+  }
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    if (isPanMode || sceneMode !== 'interior') {
+      isPanning = true;
+      lastPanClient = { x: t.clientX, y: t.clientY };
+    } else {
+      saveMaskHistory();
+      isDrawingMask = true;
+      document.getElementById('showMaskOverlay').checked = true;
+      lastDrawPt = getMaskCoordsFromClient(t.clientX, t.clientY);
+      drawMaskStroke(lastDrawPt, lastDrawPt);
+    }
+  }
+}, { passive: false });
+
+rainCanvas.addEventListener('touchmove', (e) => {
+  e.preventDefault();
+  if (e.touches.length === 2 && initialPinchDist) {
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    const dist = Math.hypot(dx, dy);
+    const oldZoom = zoomLevel;
+    zoomLevel = Math.min(5.0, Math.max(1.0, +(initialPinchZoom * (dist / initialPinchDist)).toFixed(2)));
+    const midX = (e.touches[0].clientX + e.touches[1].clientX) / 2;
+    const midY = (e.touches[0].clientY + e.touches[1].clientY) / 2;
+    const rect = rainCanvas.getBoundingClientRect();
+    const cx = ((midX - rect.left) / rect.width) * rainCanvas.width;
+    const cy = ((midY - rect.top) / rect.height) * rainCanvas.height;
+    panX = cx - (cx - panX) * (zoomLevel / oldZoom);
+    panY = cy - (cy - panY) * (zoomLevel / oldZoom);
+    if (lastPanClient) {
+      panX += ((midX - lastPanClient.x) / rect.width) * rainCanvas.width;
+      panY += ((midY - lastPanClient.y) / rect.height) * rainCanvas.height;
+    }
+    lastPanClient = { x: midX, y: midY };
+    clampPan();
+    document.getElementById('zoomVal').textContent = zoomLevel.toFixed(1) + 'x';
+    return;
+  }
+  if (e.touches.length === 1) {
+    const t = e.touches[0];
+    if (isPanning && lastPanClient) {
+      const rect = rainCanvas.getBoundingClientRect();
+      panX += ((t.clientX - lastPanClient.x) / rect.width) * rainCanvas.width;
+      panY += ((t.clientY - lastPanClient.y) / rect.height) * rainCanvas.height;
+      lastPanClient = { x: t.clientX, y: t.clientY };
+      clampPan();
+    } else if (isDrawingMask && lastDrawPt) {
+      const currPt = getMaskCoordsFromClient(t.clientX, t.clientY);
+      drawMaskStroke(lastDrawPt, currPt);
+      lastDrawPt = currPt;
+    }
+  }
+}, { passive: false });
+
+rainCanvas.addEventListener('touchend', () => {
+  isDrawingMask = false; isPanning = false;
+  lastDrawPt = null; lastPanClient = null; initialPinchDist = null;
 });
 
-rainCanvas.addEventListener('pointermove', (e) => {
-  if (!isDrawingMask) return;
-  const currPt = getCanvasCoords(e);
-  drawMaskStroke(lastDrawPt, currPt);
-  lastDrawPt = currPt;
+// Mouse Support (Desktop / Trackpad)
+rainCanvas.addEventListener('mousedown', (e) => {
+  if (isPanMode || sceneMode !== 'interior') {
+    isPanning = true;
+    lastPanClient = { x: e.clientX, y: e.clientY };
+  } else {
+    saveMaskHistory();
+    isDrawingMask = true;
+    document.getElementById('showMaskOverlay').checked = true;
+    lastDrawPt = getMaskCoordsFromClient(e.clientX, e.clientY);
+    drawMaskStroke(lastDrawPt, lastDrawPt);
+  }
 });
 
-window.addEventListener('pointerup', () => { isDrawingMask = false; lastDrawPt = null; });
+window.addEventListener('mousemove', (e) => {
+  if (isPanning && lastPanClient) {
+    const rect = rainCanvas.getBoundingClientRect();
+    panX += ((e.clientX - lastPanClient.x) / rect.width) * rainCanvas.width;
+    panY += ((e.clientY - lastPanClient.y) / rect.height) * rainCanvas.height;
+    lastPanClient = { x: e.clientX, y: e.clientY };
+    clampPan();
+  } else if (isDrawingMask && lastDrawPt) {
+    const currPt = getMaskCoordsFromClient(e.clientX, e.clientY);
+    drawMaskStroke(lastDrawPt, currPt);
+    lastDrawPt = currPt;
+  }
+});
+
+window.addEventListener('mouseup', () => {
+  isDrawingMask = false; isPanning = false; lastDrawPt = null; lastPanClient = null;
+});
 
 function setScene(mode) {
   sceneMode = mode;
@@ -516,6 +756,9 @@ function setWeather(preset, btn) {
 
 function updateRainParams() {
   document.getElementById('brightVal').textContent = document.getElementById('brightSlider').value + '%';
+  const wVal = parseInt(document.getElementById('rainWindSlider').value);
+  const dirLabel = wVal === 0 ? '0.0 (Tegak Lurus)' : (wVal > 0 ? `+${(wVal/5).toFixed(1)} (Miring Kanan)` : `${(wVal/5).toFixed(1)} (Miring Kiri)`);
+  document.getElementById('rainWindVal').textContent = dirLabel;
 }
 
 function initRainParticles() {
@@ -527,7 +770,7 @@ function initRainParticles() {
       nx: Math.random(),
       ny: Math.random(),
       vy: cfg.speedY * depth,
-      vx: cfg.speedX * depth,
+      depth: depth,
       size: cfg.width * depth,
       len: cfg.len * depth,
       phase: Math.random() * Math.PI * 2,
@@ -547,11 +790,14 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
 
   const cfg = WEATHER_CONFIG[weatherPreset];
   const brightness = parseInt(document.getElementById('brightSlider').value) / 100;
+  // Arah angin dari slider (-15 sampai +15) dikonversi ke kecepatan horizontal normalisasi
+  const windNorm = (parseInt(document.getElementById('rainWindSlider').value) / 2) / 1280;
 
   for (let p of rainParticles) {
+    const vx = windNorm * p.depth;
     if (advance) {
       p.ny += p.vy;
-      p.nx += p.vx + (cfg.isSnow ? Math.sin(p.phase += 0.03) * 0.0006 : 0);
+      p.nx += vx + (cfg.isSnow ? Math.sin(p.phase += 0.03) * 0.0006 : 0);
       if (p.ny > 1.05) { p.ny = -0.05; p.nx = Math.random(); }
       if (p.nx > 1.0) p.nx -= 1.0;
       if (p.nx < 0.0) p.nx += 1.0;
@@ -561,7 +807,7 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
     const py = p.ny * H;
     const pSize = Math.max(1.2, p.size * W);
     const pLen = p.len * H;
-    const pVx = p.vx * W;
+    const pVx = vx * W;
 
     offWeatherCtx.strokeStyle = `rgba(245, 250, 255, ${Math.min(1, p.alpha * brightness * 1.15)})`;
     offWeatherCtx.fillStyle = `rgba(250, 253, 255, ${Math.min(1, p.alpha * brightness * 1.15)})`;
@@ -575,7 +821,7 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
       offWeatherCtx.lineCap = 'round';
       offWeatherCtx.beginPath();
       offWeatherCtx.moveTo(px, py);
-      offWeatherCtx.lineTo(px - pVx * 1.4, py - pLen);
+      offWeatherCtx.lineTo(px - pVx * 1.6, py - pLen);
       offWeatherCtx.stroke();
     }
   }
@@ -588,7 +834,6 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
 
   targetCtx.drawImage(offWeatherCanvas, 0, 0, W, H);
 
-  // Tampilkan highlight biru transparan HANYA saat preview (tidak ikut ter-render ke video)
   if (showGuide && sceneMode === 'interior' && document.getElementById('showMaskOverlay').checked) {
     offBlueGuideCanvas.width = W; offBlueGuideCanvas.height = H;
     offBlueGuideCtx.clearRect(0, 0, W, H);
@@ -685,7 +930,19 @@ function renderVfxFrame(targetCtx, W, H, advance = true) {
 let isExporting = false;
 function animateLoop() {
   if (!isExporting) {
-    renderRainFrame(rCtx, rainCanvas.width, rainCanvas.height, true, true);
+    const W = rainCanvas.width, H = rainCanvas.height;
+    compositePreviewCanvas.width = W;
+    compositePreviewCanvas.height = H;
+    renderRainFrame(compPrevCtx, W, H, true, true);
+
+    // Terapkan transformasi Zoom & Pan pada layar preview
+    rCtx.clearRect(0, 0, W, H);
+    rCtx.save();
+    rCtx.translate(panX, panY);
+    rCtx.scale(zoomLevel, zoomLevel);
+    rCtx.drawImage(compositePreviewCanvas, 0, 0);
+    rCtx.restore();
+
     renderVfxFrame(vCtx, vfxCanvas.width, vfxCanvas.height, true);
   }
   requestAnimationFrame(animateLoop);
@@ -726,7 +983,7 @@ async function exportCanvasVideo(mode) {
   recCanvas.width = W; recCanvas.height = H;
   const recCtx = recCanvas.getContext('2d');
 
-  // showGuide = false agar highlight biru kuas TIDAK ikut terekam ke video
+  // Render selalu 100% penuh (tanpa zoom & tanpa highlight biru)
   if (isRain) renderRainFrame(recCtx, W, H, false, false); else renderVfxFrame(recCtx, W, H, false);
   const thumbUrl = recCanvas.toDataURL('image/jpeg', 0.75);
 
@@ -844,6 +1101,7 @@ function deleteVideo(id) {
 createDefaultRoomImage();
 initRainParticles();
 initVfxParticles();
+updateRainParams();
 animateLoop();
 </script>
 </body>
