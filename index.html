@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>AtmosStudio — Pen Tool Mask, Zoom & VFX</title>
+<title>AtmosStudio — Pro Rain Canvas, VFX & Gallery</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -95,6 +95,7 @@
   }
   .opt-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
   .opt-btn.blue.active { background: var(--blue); color: #fff; border-color: var(--blue); }
+  .opt-btn.purple.active { background: var(--purple); color: #fff; border-color: var(--purple); }
   .opt-btn.green { background: rgba(16,185,129,0.2); border-color: var(--green); color: #6ee7b7; }
   .opt-btn.red { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
 
@@ -164,7 +165,7 @@
     <div class="brand-dot"></div>
     <span>AtmosStudio</span>
   </div>
-  <span class="badge-free">Pen Tool Mask + Zoom + Wind</span>
+  <span class="badge-free">Full VFX + Pen Tool Mask</span>
 </header>
 
 <div class="nav-tabs">
@@ -179,7 +180,7 @@
   <div id="tab-canvas" class="section active">
     <div class="hero-title">
       <h1>Ubah Gambar Jadi Hujan & Salju</h1>
-      <p>Gunakan ✒️ Pen Tool (titik sudut seperti CapCut PC) atau 🖌️ Kuas untuk seleksi kaca jendela</p>
+      <p>Gunakan ✒️ Pen Tool (titik sudut seperti CapCut PC), Zoom jendela, & atur fisika cuaca lengkap</p>
     </div>
 
     <div class="stage-wrap" id="rainStageWrap">
@@ -229,9 +230,9 @@
         <!-- PANEL KHUSUS PEN TOOL (CAPCUT PC STYLE) -->
         <div class="pen-action-bar" id="penControls">
           <div class="brush-tip" style="margin-bottom:8px;">
-            ✒️ <b>Cara Pakai Pen Tool (Seperti CapCut PC):</b><br>
+            ✒️ <b>Cara Pakai Pen Tool (Titik Sudut):</b><br>
             1. Ketuk di tiap <b>sudut kaca jendela</b> untuk menaruh titik (bisa geser titiknya jika kurang pas).<br>
-            2. Ketuk titik pertama (lingkaran hijau) atau tekan <b>Selesai & Isi Area</b> untuk mengunci bentuk jendela.
+            2. Ketuk titik pertama (lingkaran hijau) atau tekan <b>✅ Isi Area (+)</b> untuk mengunci bentuk jendela.
           </div>
           <div class="grid-3" style="margin-bottom:0;">
             <button class="opt-btn green" onclick="closeAndFillPolygon()">✅ Isi Area (+)</button>
@@ -261,14 +262,35 @@
         <button class="opt-btn" onclick="setWeather('heavy_snow', this)">❄️ Salju Lebat</button>
       </div>
 
+      <!-- PENGATURAN LENGKAP SEPERTI VFX STUDIO -->
       <div class="slider-row">
-        <div class="label-sm"><span>Effect Brightness (Ketajaman Hujan/Salju)</span><span id="brightVal">85%</span></div>
-        <input type="range" id="brightSlider" min="20" max="100" value="85" oninput="updateRainParams()">
+        <div class="label-sm"><span>Intensitas / Jumlah Partikel</span><span id="rainAmtVal">650</span></div>
+        <input type="range" id="rainAmtSlider" min="150" max="2500" value="650" oninput="updateRainParams()">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Ketebalan / Ukuran Partikel</span><span id="rainSizeVal">1.0x</span></div>
+        <input type="range" id="rainSizeSlider" min="4" max="30" value="10" oninput="updateRainParams()">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Kecepatan Jatuh (Fall Speed)</span><span id="rainSpdVal">1.0x</span></div>
+        <input type="range" id="rainSpdSlider" min="4" max="30" value="10" oninput="updateRainParams()">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Arah Jatuh / Angin (Wind Angle)</span><span id="rainWindVal">+0.4 (Miring Kanan)</span></div>
+        <input type="range" id="rainWindSlider" min="-15" max="15" value="2" oninput="updateRainParams()">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Turbulensi / Hembusan Angin Acak</span><span id="rainTurbVal">0.2</span></div>
+        <input type="range" id="rainTurbSlider" min="0" max="25" value="2" oninput="updateRainParams()">
       </div>
 
       <div class="slider-row" style="margin-bottom:14px;">
-        <div class="label-sm"><span>Wind Angle (Arah Jatuhnya Hujan / Salju)</span><span id="rainWindVal">+0.4 (Miring Kanan)</span></div>
-        <input type="range" id="rainWindSlider" min="-15" max="15" value="2" oninput="updateRainParams()">
+        <div class="label-sm"><span>Effect Brightness (Kecerahan Hujan/Salju)</span><span id="brightVal">85%</span></div>
+        <input type="range" id="brightSlider" min="20" max="100" value="85" oninput="updateRainParams()">
       </div>
 
       <div class="export-row">
@@ -298,11 +320,11 @@
     </div>
   </div>
 
-  <!-- TAB 2: VFX EFFECTS STUDIO -->
+  <!-- TAB 2: VFX EFFECTS STUDIO (DIKEMBALIKAN LENGKAP) -->
   <div id="tab-vfx" class="section">
     <div class="hero-title">
       <h1>VFX Overlay Studio</h1>
-      <p>Partikel hujan/salju Full 16:9 berlatar hitam pekat — siap tempel di CapCut (Blend: Screen)</p>
+      <p>Buat partikel VFX (Hujan, Salju, Bara Api, Debu & Kunang-kunang) berlatar hitam pekat untuk CapCut</p>
     </div>
 
     <div class="stage-wrap">
@@ -311,30 +333,39 @@
     </div>
 
     <div class="panel vfx-panel">
-      <div class="label-sm"><span>Tipe Partikel VFX</span></div>
-      <div class="grid-2">
-        <button class="opt-btn active" id="vfxTypeRain" onclick="setVfxType('rain')">🌧️ Garis Hujan (Rain Streaks)</button>
-        <button class="opt-btn" id="vfxTypeSnow" onclick="setVfxType('snow')">❄️ Butiran Salju (Snowflakes)</button>
+      <div class="label-sm"><span>Tipe Efek VFX</span></div>
+      <div class="grid-3">
+        <button class="opt-btn purple active" onclick="setVfxType('rain', this)">🌧️ Hujan</button>
+        <button class="opt-btn purple" onclick="setVfxType('snow', this)">❄️ Salju</button>
+        <button class="opt-btn purple" onclick="setVfxType('embers', this)">🔥 Bara Api</button>
+        <button class="opt-btn purple" onclick="setVfxType('fireflies', this)">✨ Kunang-kunang</button>
+        <button class="opt-btn purple" onclick="setVfxType('dust', this)">🌫️ Debu Cahaya</button>
+        <button class="opt-btn purple" onclick="setVfxType('bokeh', this)">🔮 Bokeh Hangat</button>
       </div>
 
       <div class="slider-row">
-        <div class="label-sm"><span>Amount (Jumlah Partikel)</span><span id="vfxAmtVal">750</span></div>
-        <input type="range" id="vfxAmt" min="150" max="2500" value="750" oninput="updateVfxParams()">
+        <div class="label-sm"><span>Intensitas / Jumlah Partikel</span><span id="vfxAmtVal">750</span></div>
+        <input type="range" id="vfxAmt" min="80" max="2500" value="750" oninput="updateVfxParams()">
       </div>
 
       <div class="slider-row">
-        <div class="label-sm"><span>Fall Speed (Kecepatan Jatuh)</span><span id="vfxSpdVal">1.5x</span></div>
-        <input type="range" id="vfxSpd" min="4" max="45" value="20" oninput="updateVfxParams()">
+        <div class="label-sm"><span>Ketebalan / Ukuran Partikel</span><span id="vfxSizeVal">1.6</span></div>
+        <input type="range" id="vfxSize" min="5" max="50" value="16" oninput="updateVfxParams()">
       </div>
 
       <div class="slider-row">
-        <div class="label-sm"><span>Particle Size (Ukuran)</span><span id="vfxSizeVal">1.6</span></div>
-        <input type="range" id="vfxSize" min="6" max="45" value="16" oninput="updateVfxParams()">
+        <div class="label-sm"><span>Kecepatan Gerak (Speed)</span><span id="vfxSpdVal">1.5x</span></div>
+        <input type="range" id="vfxSpd" min="3" max="45" value="20" oninput="updateVfxParams()">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Arah Jatuh / Angin (Wind Angle)</span><span id="vfxWindVal">+0.4</span></div>
+        <input type="range" id="vfxWind" min="-15" max="15" value="2" oninput="updateVfxParams()">
       </div>
 
       <div class="slider-row" style="margin-bottom:14px;">
-        <div class="label-sm"><span>Wind Angle (Arah Angin)</span><span id="vfxWindVal">0.4</span></div>
-        <input type="range" id="vfxWind" min="-15" max="15" value="2" oninput="updateVfxParams()">
+        <div class="label-sm"><span>Turbulensi / Gerakan Acak</span><span id="vfxTurbVal">0.3</span></div>
+        <input type="range" id="vfxTurb" min="0" max="25" value="3" oninput="updateVfxParams()">
       </div>
 
       <div class="export-row">
@@ -416,17 +447,18 @@ const compPrevCtx = compositePreviewCanvas.getContext('2d');
 let loadedImg = null;
 let sceneMode = 'interior';
 let weatherPreset = 'light_rain';
-let brushTool = 'pen'; // default 'pen' (CapCut PC style), 'brush', 'eraser'
+let brushTool = 'pen';
 let isDrawingMask = false;
 let lastDrawPt = null;
 let rainParticles = [];
+let rainClock = 0;
 
 // Pen Tool (Polygon Anchor Points dalam koordinat 1920x1080)
 let penPoints = [];
 let penRedoPoints = [];
 let draggingPointIdx = -1;
 
-// Undo & Redo History Stacks untuk Mask Canvas
+// Undo & Redo History Stacks
 let undoStack = [];
 let redoStack = [];
 const MAX_HISTORY = 25;
@@ -442,10 +474,10 @@ let initialPinchDist = null;
 let initialPinchZoom = 1.0;
 
 const WEATHER_CONFIG = {
-  light_rain: { count: 650,  speedY: 0.024, len: 0.032, width: 0.0016, isSnow: false },
-  heavy_rain: { count: 1800, speedY: 0.042, len: 0.048, width: 0.0022, isSnow: false },
-  light_snow: { count: 450,  speedY: 0.0035, len: 0.0032, width: 0.0032, isSnow: true },
-  heavy_snow: { count: 1400, speedY: 0.0065, len: 0.0045, width: 0.0045, isSnow: true }
+  light_rain: { count: 650,  speedY: 0.024, len: 0.032, width: 0.0016, isSnow: false, turb: 2 },
+  heavy_rain: { count: 1800, speedY: 0.042, len: 0.048, width: 0.0022, isSnow: false, turb: 5 },
+  light_snow: { count: 450,  speedY: 0.0035, len: 0.0032, width: 0.0032, isSnow: true, turb: 8 },
+  heavy_snow: { count: 1400, speedY: 0.0065, len: 0.0045, width: 0.0045, isSnow: true, turb: 14 }
 };
 
 function saveMaskHistory() {
@@ -457,8 +489,6 @@ function saveMaskHistory() {
   updateHistoryButtons();
 }
 
-// Undo / Redo pintar: jika sedang merangkai titik Pen Tool, urungkan titik sudutnya dulu;
-// jika tidak ada titik aktif, urungkan hasil masking sebelumnya.
 function undoAction() {
   if (penPoints.length > 0) {
     penRedoPoints.push(penPoints.pop());
@@ -696,19 +726,16 @@ function handlePenPointerDown(pt) {
   document.getElementById('showMaskOverlay').checked = true;
   const hitIdx = findNearPointIndex(pt);
 
-  // Jika mengetuk titik pertama saat sudah ada >= 3 titik, langsung tutup & isi area!
   if (hitIdx === 0 && penPoints.length >= 3) {
     closeAndFillPolygon();
     return;
   }
 
-  // Jika mengetuk titik yang sudah ada, aktifkan drag untuk menggeser titik tersebut
   if (hitIdx !== -1) {
     draggingPointIdx = hitIdx;
     return;
   }
 
-  // Tambah titik sudut baru
   penPoints.push(pt);
   penRedoPoints = [];
   draggingPointIdx = penPoints.length - 1;
@@ -827,7 +854,6 @@ rainCanvas.addEventListener('touchend', () => {
   lastDrawPt = null; lastPanClient = null; initialPinchDist = null;
 });
 
-// Mouse Support (Desktop / Trackpad)
 rainCanvas.addEventListener('mousedown', (e) => {
   if (isPanMode || sceneMode !== 'interior') {
     isPanning = true;
@@ -877,29 +903,53 @@ function setWeather(preset, btn) {
   weatherPreset = preset;
   document.querySelectorAll('#tab-canvas .grid-4 .opt-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+
+  const cfg = WEATHER_CONFIG[preset];
+  document.getElementById('rainAmtSlider').value = cfg.count;
+  document.getElementById('rainSizeSlider').value = 10;
+  document.getElementById('rainSpdSlider').value = 10;
+  document.getElementById('rainTurbSlider').value = cfg.turb;
+
+  updateRainParams();
   initRainParticles();
 }
 
 function updateRainParams() {
-  document.getElementById('brightVal').textContent = document.getElementById('brightSlider').value + '%';
+  const amt = parseInt(document.getElementById('rainAmtSlider').value);
+  const szMult = parseInt(document.getElementById('rainSizeSlider').value) / 10;
+  const spdMult = parseInt(document.getElementById('rainSpdSlider').value) / 10;
   const wVal = parseInt(document.getElementById('rainWindSlider').value);
+  const turb = parseInt(document.getElementById('rainTurbSlider').value) / 10;
+  const bright = document.getElementById('brightSlider').value;
+
+  document.getElementById('rainAmtVal').textContent = amt;
+  document.getElementById('rainSizeVal').textContent = szMult.toFixed(1) + 'x';
+  document.getElementById('rainSpdVal').textContent = spdMult.toFixed(1) + 'x';
   const dirLabel = wVal === 0 ? '0.0 (Tegak Lurus)' : (wVal > 0 ? `+${(wVal/5).toFixed(1)} (Miring Kanan)` : `${(wVal/5).toFixed(1)} (Miring Kiri)`);
   document.getElementById('rainWindVal').textContent = dirLabel;
+  document.getElementById('rainTurbVal').textContent = turb.toFixed(1);
+  document.getElementById('brightVal').textContent = bright + '%';
+
+  if (rainParticles.length !== amt) {
+    initRainParticles();
+  }
 }
 
 function initRainParticles() {
   const cfg = WEATHER_CONFIG[weatherPreset];
+  const amt = parseInt(document.getElementById('rainAmtSlider').value);
   rainParticles = [];
-  for (let i = 0; i < cfg.count; i++) {
-    const depth = 0.45 + Math.random() * 0.55;
+  for (let i = 0; i < amt; i++) {
+    const depth = 0.4 + Math.random() * 0.6;
     rainParticles.push({
       nx: Math.random(),
       ny: Math.random(),
-      vy: cfg.speedY * depth,
+      baseVy: cfg.speedY * depth,
       depth: depth,
-      size: cfg.width * depth,
-      len: cfg.len * depth,
+      baseSize: cfg.width * depth,
+      baseLen: cfg.len * depth,
       phase: Math.random() * Math.PI * 2,
+      freq: 0.7 + Math.random() * 0.8,
       alpha: 0.45 + Math.random() * 0.55
     });
   }
@@ -916,13 +966,24 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
 
   const cfg = WEATHER_CONFIG[weatherPreset];
   const brightness = parseInt(document.getElementById('brightSlider').value) / 100;
+  const sizeMult = parseInt(document.getElementById('rainSizeSlider').value) / 10;
+  const spdMult = parseInt(document.getElementById('rainSpdSlider').value) / 10;
   const windNorm = (parseInt(document.getElementById('rainWindSlider').value) / 2) / 1280;
+  const turbAmt = parseInt(document.getElementById('rainTurbSlider').value) / 10;
+
+  if (advance) rainClock += 0.04;
 
   for (let p of rainParticles) {
-    const vx = windNorm * p.depth;
+    // Turbulensi: pusaran/hembusan angin acak horizontal & sedikit variasi kecepatan vertikal
+    const gustX = Math.sin(rainClock * p.freq + p.phase) * 0.0014 * turbAmt * p.depth;
+    const gustY = Math.cos(rainClock * 0.8 + p.phase) * 0.0008 * turbAmt * p.depth;
+
+    const vy = Math.max(0.0005, (p.baseVy * spdMult) + gustY);
+    const vx = (windNorm * p.depth) + gustX;
+
     if (advance) {
-      p.ny += p.vy;
-      p.nx += vx + (cfg.isSnow ? Math.sin(p.phase += 0.03) * 0.0006 : 0);
+      p.ny += vy;
+      p.nx += vx;
       if (p.ny > 1.05) { p.ny = -0.05; p.nx = Math.random(); }
       if (p.nx > 1.0) p.nx -= 1.0;
       if (p.nx < 0.0) p.nx += 1.0;
@@ -930,8 +991,8 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
 
     const px = p.nx * W;
     const py = p.ny * H;
-    const pSize = Math.max(1.2, p.size * W);
-    const pLen = p.len * H;
+    const pSize = Math.max(1.0, p.baseSize * sizeMult * W);
+    const pLen = p.baseLen * (0.7 + sizeMult * 0.3) * H;
     const pVx = vx * W;
 
     offWeatherCtx.strokeStyle = `rgba(245, 250, 255, ${Math.min(1, p.alpha * brightness * 1.15)})`;
@@ -971,13 +1032,11 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
       targetCtx.drawImage(offBlueGuideCanvas, 0, 0, W, H);
     }
 
-    // Gambar garis & titik sudut Pen Tool (hanya saat preview, tidak ikut ter-render ke video)
     if (penPoints.length > 0) {
       const scaleX = W / offMaskCanvas.width;
       const scaleY = H / offMaskCanvas.height;
       targetCtx.save();
 
-      // Isi bayangan poligon sementara
       if (penPoints.length >= 3) {
         targetCtx.fillStyle = 'rgba(245, 158, 11, 0.22)';
         targetCtx.beginPath();
@@ -989,7 +1048,6 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
         targetCtx.fill();
       }
 
-      // Garis penghubung antar titik sudut
       targetCtx.strokeStyle = '#f59e0b';
       targetCtx.lineWidth = Math.max(2, 3 / Math.sqrt(zoomLevel));
       targetCtx.beginPath();
@@ -1004,7 +1062,6 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
       targetCtx.stroke();
       targetCtx.setLineDash([]);
 
-      // Titik-titik sudut (Anchor Nodes)
       const nodeR = Math.max(5, 8 / Math.sqrt(zoomLevel));
       for (let i = 0; i < penPoints.length; i++) {
         const nx = penPoints[i].x * scaleX;
@@ -1022,16 +1079,58 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
   }
 }
 
-// ================= TAB 2: VFX STUDIO ENGINE =================
+// ================= TAB 2: VFX STUDIO ENGINE (6 EFEK LENGKAP) =================
 const vfxCanvas = document.getElementById('vfxCanvas');
 const vCtx = vfxCanvas.getContext('2d');
 let vfxType = 'rain';
 let vfxParticles = [];
+let vfxClock = 0;
 
-function setVfxType(t) {
+function setVfxType(t, btn) {
   vfxType = t;
-  document.getElementById('vfxTypeRain').classList.toggle('active', t === 'rain');
-  document.getElementById('vfxTypeSnow').classList.toggle('active', t === 'snow');
+  document.querySelectorAll('#tab-vfx .grid-3 .opt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+
+  // Set preset slider default yang pas untuk tiap efek VFX
+  if (t === 'rain') {
+    document.getElementById('vfxAmt').value = 750;
+    document.getElementById('vfxSize').value = 16;
+    document.getElementById('vfxSpd').value = 22;
+    document.getElementById('vfxWind').value = 2;
+    document.getElementById('vfxTurb').value = 2;
+  } else if (t === 'snow') {
+    document.getElementById('vfxAmt').value = 600;
+    document.getElementById('vfxSize').value = 20;
+    document.getElementById('vfxSpd').value = 8;
+    document.getElementById('vfxWind').value = 1;
+    document.getElementById('vfxTurb').value = 10;
+  } else if (t === 'embers') {
+    document.getElementById('vfxAmt').value = 320;
+    document.getElementById('vfxSize').value = 22;
+    document.getElementById('vfxSpd').value = 12;
+    document.getElementById('vfxWind').value = 1;
+    document.getElementById('vfxTurb').value = 14;
+  } else if (t === 'fireflies') {
+    document.getElementById('vfxAmt').value = 160;
+    document.getElementById('vfxSize').value = 26;
+    document.getElementById('vfxSpd').value = 6;
+    document.getElementById('vfxWind').value = 0;
+    document.getElementById('vfxTurb').value = 18;
+  } else if (t === 'dust') {
+    document.getElementById('vfxAmt').value = 450;
+    document.getElementById('vfxSize').value = 14;
+    document.getElementById('vfxSpd').value = 5;
+    document.getElementById('vfxWind').value = 1;
+    document.getElementById('vfxTurb').value = 12;
+  } else if (t === 'bokeh') {
+    document.getElementById('vfxAmt').value = 110;
+    document.getElementById('vfxSize').value = 42;
+    document.getElementById('vfxSpd').value = 5;
+    document.getElementById('vfxWind').value = 0;
+    document.getElementById('vfxTurb').value = 8;
+  }
+
+  updateVfxParams();
   initVfxParticles();
 }
 
@@ -1040,10 +1139,12 @@ function updateVfxParams() {
   const spd = parseInt(document.getElementById('vfxSpd').value);
   const sz = parseInt(document.getElementById('vfxSize').value);
   const wnd = parseInt(document.getElementById('vfxWind').value);
+  const trb = parseInt(document.getElementById('vfxTurb').value);
   document.getElementById('vfxAmtVal').textContent = amt;
   document.getElementById('vfxSpdVal').textContent = (spd / 13).toFixed(1) + 'x';
   document.getElementById('vfxSizeVal').textContent = (sz / 10).toFixed(1);
-  document.getElementById('vfxWindVal').textContent = (wnd / 5).toFixed(1);
+  document.getElementById('vfxWindVal').textContent = (wnd >= 0 ? '+' : '') + (wnd / 5).toFixed(1);
+  document.getElementById('vfxTurbVal').textContent = (trb / 10).toFixed(1);
   if (vfxParticles.length !== amt) initVfxParticles();
 }
 
@@ -1055,7 +1156,8 @@ function initVfxParticles() {
       nx: Math.random(),
       ny: Math.random(),
       depth: 0.35 + Math.random() * 0.65,
-      phase: Math.random() * Math.PI * 2
+      phase: Math.random() * Math.PI * 2,
+      freq: 0.6 + Math.random() * 0.9
     });
   }
 }
@@ -1067,15 +1169,26 @@ function renderVfxFrame(targetCtx, W, H, advance = true) {
   const spdNorm = parseInt(document.getElementById('vfxSpd').value) / 720;
   const szNorm = (parseInt(document.getElementById('vfxSize').value) / 10) / 1280;
   const windNorm = (parseInt(document.getElementById('vfxWind').value) / 2) / 1280;
+  const turbAmt = parseInt(document.getElementById('vfxTurb').value) / 10;
+
+  if (advance) vfxClock += 0.04;
 
   for (let p of vfxParticles) {
-    const vy = (vfxType === 'snow' ? spdNorm * 0.25 : spdNorm) * p.depth;
-    const vx = windNorm * p.depth + (vfxType === 'snow' ? Math.sin(p.phase += 0.03) * 0.0007 : 0);
+    const gustX = Math.sin(vfxClock * p.freq + p.phase) * 0.0015 * turbAmt * p.depth;
+    const gustY = Math.cos(vfxClock * 0.9 + p.phase) * 0.0010 * turbAmt * p.depth;
+
+    let vy = spdNorm * p.depth;
+    if (vfxType === 'snow' || vfxType === 'dust' || vfxType === 'bokeh') vy *= 0.25;
+    if (vfxType === 'embers') vy = -spdNorm * 0.38 * p.depth; // Bara api naik ke atas
+    if (vfxType === 'fireflies') vy = Math.sin(vfxClock * 0.7 + p.phase) * spdNorm * 0.2;
+
+    const vx = windNorm * p.depth + gustX;
 
     if (advance) {
-      p.ny += vy;
+      p.ny += vy + (vfxType !== 'rain' ? gustY : 0);
       p.nx += vx;
       if (p.ny > 1.05) { p.ny = -0.05; p.nx = Math.random(); }
+      if (p.ny < -0.05) { p.ny = 1.05; p.nx = Math.random(); }
       if (p.nx > 1.0) p.nx -= 1.0;
       if (p.nx < 0.0) p.nx += 1.0;
     }
@@ -1084,21 +1197,56 @@ function renderVfxFrame(targetCtx, W, H, advance = true) {
     const py = p.ny * H;
     const pSize = Math.max(1.2, szNorm * W * p.depth);
     const pVx = vx * W;
+    const twinkle = 0.55 + 0.45 * Math.sin(vfxClock * 2.5 + p.phase);
 
-    targetCtx.strokeStyle = `rgba(255,255,255,${0.4 + p.depth * 0.6})`;
-    targetCtx.fillStyle = `rgba(255,255,255,${0.45 + p.depth * 0.55})`;
-
-    if (vfxType === 'snow') {
-      targetCtx.beginPath();
-      targetCtx.arc(px, py, pSize * 2.4, 0, Math.PI * 2);
-      targetCtx.fill();
-    } else {
+    if (vfxType === 'rain') {
+      targetCtx.strokeStyle = `rgba(255,255,255,${0.4 + p.depth * 0.6})`;
       targetCtx.lineWidth = pSize;
       targetCtx.lineCap = 'round';
       targetCtx.beginPath();
       targetCtx.moveTo(px, py);
       targetCtx.lineTo(px - pVx * 1.3, py - (18 * pSize));
       targetCtx.stroke();
+    } else if (vfxType === 'snow') {
+      targetCtx.fillStyle = `rgba(255,255,255,${0.45 + p.depth * 0.55})`;
+      targetCtx.beginPath();
+      targetCtx.arc(px, py, pSize * 2.4, 0, Math.PI * 2);
+      targetCtx.fill();
+    } else if (vfxType === 'embers') {
+      const r = pSize * 2.3;
+      const g = targetCtx.createRadialGradient(px, py, 0, px, py, r * 2.2);
+      g.addColorStop(0, `rgba(255, 230, 140, ${twinkle})`);
+      g.addColorStop(0.4, `rgba(255, 110, 20, ${twinkle * 0.85})`);
+      g.addColorStop(1, 'rgba(255, 50, 0, 0)');
+      targetCtx.fillStyle = g;
+      targetCtx.beginPath();
+      targetCtx.arc(px, py, r * 2.2, 0, Math.PI * 2);
+      targetCtx.fill();
+    } else if (vfxType === 'fireflies') {
+      const r = pSize * 2.6;
+      const g = targetCtx.createRadialGradient(px, py, 0, px, py, r * 2.5);
+      g.addColorStop(0, `rgba(235, 255, 160, ${twinkle})`);
+      g.addColorStop(0.45, `rgba(163, 230, 53, ${twinkle * 0.7})`);
+      g.addColorStop(1, 'rgba(101, 163, 13, 0)');
+      targetCtx.fillStyle = g;
+      targetCtx.beginPath();
+      targetCtx.arc(px, py, r * 2.5, 0, Math.PI * 2);
+      targetCtx.fill();
+    } else if (vfxType === 'dust') {
+      targetCtx.fillStyle = `rgba(255, 244, 214, ${(0.25 + p.depth * 0.45) * twinkle})`;
+      targetCtx.beginPath();
+      targetCtx.arc(px, py, pSize * 1.8, 0, Math.PI * 2);
+      targetCtx.fill();
+    } else if (vfxType === 'bokeh') {
+      const r = pSize * 5.5;
+      const g = targetCtx.createRadialGradient(px, py, r * 0.2, px, py, r);
+      g.addColorStop(0, `rgba(253, 224, 71, ${0.18 * twinkle})`);
+      g.addColorStop(0.75, `rgba(245, 158, 11, ${0.28 * twinkle})`);
+      g.addColorStop(1, 'rgba(245, 158, 11, 0)');
+      targetCtx.fillStyle = g;
+      targetCtx.beginPath();
+      targetCtx.arc(px, py, r, 0, Math.PI * 2);
+      targetCtx.fill();
     }
   }
 }
@@ -1276,6 +1424,7 @@ createDefaultRoomImage();
 initRainParticles();
 initVfxParticles();
 updateRainParams();
+updateVfxParams();
 animateLoop();
 </script>
 </body>
