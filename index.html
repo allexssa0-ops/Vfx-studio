@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>AtmosStudio — Pro Rain Canvas, VFX & Gallery</title>
+<title>AtmosStudio — Pro Rain Canvas, VFX Studio & Gallery</title>
 <style>
   :root {
     --bg: #0f1117;
@@ -32,7 +32,7 @@
 
   .nav-tabs {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
-    max-width: 720px; margin: 16px auto; padding: 0 14px;
+    max-width: 760px; margin: 16px auto; padding: 0 14px;
   }
   .tab-btn {
     background: var(--card); border: 1px solid var(--border); color: var(--muted);
@@ -41,7 +41,7 @@
   }
   .tab-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
 
-  .container { max-width: 720px; margin: 0 auto; padding: 0 14px; }
+  .container { max-width: 760px; margin: 0 auto; padding: 0 14px; }
   .section { display: none; }
   .section.active { display: block; }
 
@@ -92,10 +92,11 @@
   .opt-btn {
     background: var(--card-2); border: 1px solid var(--border); color: var(--text);
     padding: 10px 6px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center;
+    transition: 0.15s;
   }
   .opt-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
   .opt-btn.blue.active { background: var(--blue); color: #fff; border-color: var(--blue); }
-  .opt-btn.purple.active { background: var(--purple); color: #fff; border-color: var(--purple); }
+  .opt-btn.purple.active { background: #6610f2; color: #fff; border-color: #7c3aed; box-shadow: 0 0 12px rgba(102, 16, 242, 0.4); }
   .opt-btn.green { background: rgba(16,185,129,0.2); border-color: var(--green); color: #6ee7b7; }
   .opt-btn.red { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #fca5a5; }
 
@@ -116,6 +117,7 @@
   .vfx-panel input[type="range"] { accent-color: var(--purple); }
 
   .export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  .export-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 12px; }
   select {
     width: 100%; background: var(--card-2); color: var(--text); border: 1px solid var(--border);
     padding: 10px; border-radius: 9px; font-size: 13px;
@@ -125,11 +127,17 @@
     border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s;
   }
   .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-vfx { background: linear-gradient(90deg, #6366f1, #a855f7); color: #fff; }
+  .btn-vfx { background: linear-gradient(135deg, #4f46e5, #db2777); color: #fff; }
+  .btn-vfx.recording { background: #dc3545; }
 
   .progress-box { display: none; margin-top: 12px; background: var(--card-2); padding: 10px; border-radius: 9px; }
   .progress-bar-bg { width: 100%; height: 8px; background: #11131a; border-radius: 99px; overflow: hidden; margin-top: 6px; }
   .progress-bar-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.2s; }
+
+  .sub-box {
+    background: #13161f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px; margin-top: 14px;
+  }
 
   .gallery-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
   @media(min-width: 540px) { .gallery-grid { grid-template-columns: 1fr 1fr; } }
@@ -165,7 +173,7 @@
     <div class="brand-dot"></div>
     <span>AtmosStudio</span>
   </div>
-  <span class="badge-free">Full VFX + Pen Tool Mask</span>
+  <span class="badge-free">Rain Pen Mask + 19 VFX Loop</span>
 </header>
 
 <div class="nav-tabs">
@@ -176,7 +184,9 @@
 
 <div class="container">
 
-  <!-- TAB 1: RAIN VIDEO CANVAS -->
+  <!-- ========================================================= -->
+  <!-- TAB 1: RAIN VIDEO CANVAS (100% UTUH DENGAN PEN TOOL)       -->
+  <!-- ========================================================= -->
   <div id="tab-canvas" class="section active">
     <div class="hero-title">
       <h1>Ubah Gambar Jadi Hujan & Salju</h1>
@@ -227,7 +237,7 @@
           <button class="opt-btn blue" id="toolEraser" onclick="setBrushTool('eraser')">🧽 Penghapus</button>
         </div>
 
-        <!-- PANEL KHUSUS PEN TOOL (CAPCUT PC STYLE) -->
+        <!-- PANEL KHUSUS PEN TOOL -->
         <div class="pen-action-bar" id="penControls">
           <div class="brush-tip" style="margin-bottom:8px;">
             ✒️ <b>Cara Pakai Pen Tool (Titik Sudut):</b><br>
@@ -262,7 +272,6 @@
         <button class="opt-btn" onclick="setWeather('heavy_snow', this)">❄️ Salju Lebat</button>
       </div>
 
-      <!-- PENGATURAN LENGKAP SEPERTI VFX STUDIO -->
       <div class="slider-row">
         <div class="label-sm"><span>Intensitas / Jumlah Partikel</span><span id="rainAmtVal">650</span></div>
         <input type="range" id="rainAmtSlider" min="150" max="2500" value="650" oninput="updateRainParams()">
@@ -312,7 +321,7 @@
         </div>
       </div>
 
-      <button class="btn-primary" id="btnExportRain" onclick="exportCanvasVideo('rain')">🎬 Render & Simpan ke Gallery</button>
+      <button class="btn-primary" id="btnExportRain" onclick="exportRainCanvasVideo()">🎬 Render & Simpan ke Gallery</button>
       <div class="progress-box" id="progRain">
         <div class="label-sm"><span id="progRainText">Merender video...</span><span id="progRainPct">0%</span></div>
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="progRainFill"></div></div>
@@ -320,86 +329,160 @@
     </div>
   </div>
 
-  <!-- TAB 2: VFX EFFECTS STUDIO (DIKEMBALIKAN LENGKAP) -->
+  <!-- ========================================================= -->
+  <!-- TAB 2: STUDIO SIMULASI CUACA & VFX (19 EFEK SEAMLESS LOOP) -->
+  <!-- ========================================================= -->
   <div id="tab-vfx" class="section">
     <div class="hero-title">
-      <h1>VFX Overlay Studio</h1>
-      <p>Buat partikel VFX (Hujan, Salju, Bara Api, Debu & Kunang-kunang) berlatar hitam pekat untuk CapCut</p>
+      <h1>Studio Simulasi Cuaca & VFX (Seamless Loop)</h1>
+      <p>19 efek partikel & atmosfer sinematik berlatar hitam pekat (WebGL 3D + Loop Mulus) siap blend di CapCut</p>
     </div>
 
     <div class="stage-wrap">
-      <canvas id="vfxCanvas" width="1280" height="720"></canvas>
-      <div class="stage-badge">VFX Live 60 FPS</div>
+      <canvas id="vfxCanvas" width="1920" height="1080"></canvas>
+      <div class="stage-badge" id="vfxFpsBadge">VFX Loop • 30 FPS</div>
     </div>
 
     <div class="panel vfx-panel">
-      <div class="label-sm"><span>Tipe Efek VFX</span></div>
+      <div class="label-sm"><span>1. Hujan, Salju & Kabut</span></div>
       <div class="grid-3">
-        <button class="opt-btn purple active" onclick="setVfxType('rain', this)">🌧️ Hujan</button>
-        <button class="opt-btn purple" onclick="setVfxType('snow', this)">❄️ Salju</button>
-        <button class="opt-btn purple" onclick="setVfxType('embers', this)">🔥 Bara Api</button>
-        <button class="opt-btn purple" onclick="setVfxType('fireflies', this)">✨ Kunang-kunang</button>
-        <button class="opt-btn purple" onclick="setVfxType('dust', this)">🌫️ Debu Cahaya</button>
-        <button class="opt-btn purple" onclick="setVfxType('bokeh', this)">🔮 Bokeh Hangat</button>
+        <button type="button" class="opt-btn purple active" onclick="setVfxMode('rain')" id="vbtn_rain">🌧️ Hujan 3-Layer</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('mistyrain')" id="vbtn_mistyrain">🌦️ Hujan Berkabu</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('storm')" id="vbtn_storm">⛈️ Badai Petir</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('snow')" id="vbtn_snow">❄️ Salju</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('mistysnow')" id="vbtn_mistysnow">🌨️ Salju Berkabut</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('fog')" id="vbtn_fog">🌫️ Kabut / Mist</button>
       </div>
 
+      <div class="label-sm"><span>2. Awan & Tetesan Kaca</span></div>
+      <div class="grid-3">
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('clouds')" id="vbtn_clouds">☁️ Awan</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('cloudflash')" id="vbtn_cloudflash">⚡ Awan Kilatan Putih</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('window')" id="vbtn_window">🪟 Tetesan Kaca</button>
+      </div>
+
+      <div class="label-sm"><span>3. Tirai Air (2 Mode Terpisah)</span></div>
+      <div class="grid-2">
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('watercurtain_split')" id="vbtn_watercurtain_split">💧 Tirai Air Terbelah</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('watercurtain_full')" id="vbtn_watercurtain_full">🌊 Tirai Air Penuh</button>
+      </div>
+
+      <div class="label-sm"><span>4. Daun Gugur Terpisah & Partikel</span></div>
+      <div class="grid-3">
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('maple')" id="vbtn_maple">🍁 Daun Maple</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('greenleaf')" id="vbtn_greenleaf">🍃 Daun Hijau</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('dryleaf')" id="vbtn_dryleaf">🍂 Daun Kering</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('sakura')" id="vbtn_sakura">🌸 Sakura</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('dust')" id="vbtn_dust">✨ Debu / Bokeh</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('embers')" id="vbtn_embers">🔥 Bara Api</button>
+      </div>
+
+      <div class="label-sm"><span>5. Efek Asap & Uap</span></div>
+      <div class="grid-2" style="margin-bottom:14px;">
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('smoke')" id="vbtn_smoke">💨 Asap Tebal</button>
+        <button type="button" class="opt-btn purple" onclick="setVfxMode('steam')" id="vbtn_steam">♨️ Uap Hangat</button>
+      </div>
+
+      <div class="label-sm"><span>6. Kustomisasi Parameter Fisika</span></div>
       <div class="slider-row">
-        <div class="label-sm"><span>Intensitas / Jumlah Partikel</span><span id="vfxAmtVal">750</span></div>
-        <input type="range" id="vfxAmt" min="80" max="2500" value="750" oninput="updateVfxParams()">
+        <div class="label-sm"><span id="vlblQty">Jumlah Tetesan</span><span id="vvalQty">1400</span></div>
+        <input type="range" id="vinQty" min="50" max="3500" step="50" value="1400" oninput="updateVfxParam('qty', this.value)">
       </div>
-
       <div class="slider-row">
-        <div class="label-sm"><span>Ketebalan / Ukuran Partikel</span><span id="vfxSizeVal">1.6</span></div>
-        <input type="range" id="vfxSize" min="5" max="50" value="16" oninput="updateVfxParams()">
+        <div class="label-sm"><span id="vlblSpeed">Kecepatan Jatuh</span><span id="vvalSpeed">1.2x</span></div>
+        <input type="range" id="vinSpeed" min="0.2" max="3.0" step="0.1" value="1.2" oninput="updateVfxParam('speed', this.value)">
       </div>
-
       <div class="slider-row">
-        <div class="label-sm"><span>Kecepatan Gerak (Speed)</span><span id="vfxSpdVal">1.5x</span></div>
-        <input type="range" id="vfxSpd" min="3" max="45" value="20" oninput="updateVfxParams()">
+        <div class="label-sm"><span id="vlblSize">Tebal Tetesan</span><span id="vvalSize">1.0x</span></div>
+        <input type="range" id="vinSize" min="0.2" max="2.5" step="0.1" value="1.0" oninput="updateVfxParam('size', this.value)">
       </div>
-
       <div class="slider-row">
-        <div class="label-sm"><span>Arah Jatuh / Angin (Wind Angle)</span><span id="vfxWindVal">+0.4</span></div>
-        <input type="range" id="vfxWind" min="-15" max="15" value="2" oninput="updateVfxParams()">
+        <div class="label-sm"><span id="vlblWind">Arah Angin</span><span id="vvalWind">0.5</span></div>
+        <input type="range" id="vinWind" min="-3.0" max="3.0" step="0.1" value="0.5" oninput="updateVfxParam('wind', this.value)">
       </div>
-
+      <div class="slider-row">
+        <div class="label-sm"><span id="vlblChaos">Turbulensi</span><span id="vvalChaos">0.5</span></div>
+        <input type="range" id="vinChaos" min="0.0" max="3.0" step="0.1" value="0.5" oninput="updateVfxParam('chaos', this.value)">
+      </div>
+      <div class="slider-row">
+        <div class="label-sm"><span id="vlblExtra1">Percikan Tanah</span><span id="vvalExtra1">60%</span></div>
+        <input type="range" id="vinExtra1" min="0" max="100" step="5" value="60" oninput="updateVfxParam('extra1', this.value)">
+      </div>
       <div class="slider-row" style="margin-bottom:14px;">
-        <div class="label-sm"><span>Turbulensi / Gerakan Acak</span><span id="vfxTurbVal">0.3</span></div>
-        <input type="range" id="vfxTurb" min="0" max="25" value="3" oninput="updateVfxParams()">
+        <div class="label-sm"><span id="vlblExtra2">Detail</span><span id="vvalExtra2">100%</span></div>
+        <input type="range" id="vinExtra2" min="0" max="100" step="5" value="100" oninput="updateVfxParam('extra2', this.value)">
       </div>
 
-      <div class="export-row">
+      <!-- 7. PERSPEKTIF KAMERA 3D -->
+      <div class="sub-box" style="margin-bottom:14px;">
+        <div class="label-sm">
+          <span>7. Perspektif Kamera 3D (WebGL)</span>
+          <span style="color:#a78bfa; cursor:pointer; text-transform:none;" onclick="resetVfx3D()">↺ Reset Kamera</span>
+        </div>
+        <div class="slider-row">
+          <div class="label-sm"><span>🧭 Kemiringan X</span><span id="vvalRotX">0°</span></div>
+          <input type="range" id="vinRotX" min="-60" max="60" step="1" value="0" oninput="updateVfxRot('x', this.value)">
+        </div>
+        <div class="slider-row">
+          <div class="label-sm"><span>🧭 Kemiringan Y</span><span id="vvalRotY">0°</span></div>
+          <input type="range" id="vinRotY" min="-60" max="60" step="1" value="0" oninput="updateVfxRot('y', this.value)">
+        </div>
+        <div class="slider-row">
+          <div class="label-sm"><span>🔍 Zoom Kamera</span><span id="vvalZoom">1.00x</span></div>
+          <input type="range" id="vinZoom" min="0.5" max="2.5" step="0.05" value="1" oninput="updateVfxRot('zoom', this.value)">
+        </div>
+      </div>
+
+      <!-- 8. RESOLUSI, DURASI & FRAME RATE -->
+      <div class="label-sm"><span>8. Resolusi, Durasi Loop & Frame Rate</span></div>
+      <div class="export-row-3">
         <div>
-          <div class="label-sm"><span>Resolusi (Full 16:9)</span></div>
-          <select id="vfxRes">
-            <option value="1280x720">HD (720p)</option>
-            <option value="1920x1080" selected>Full HD (1080p)</option>
-            <option value="2560x1440">2K QHD (1440p)</option>
+          <div class="label-sm"><span>Resolusi</span></div>
+          <select id="vfxResSel" onchange="setVfxResolution(this.value)">
+            <option value="720">HD 720p</option>
+            <option value="1080" selected>FHD 1080p</option>
+            <option value="2k">2K QHD (1440p)</option>
           </select>
         </div>
         <div>
-          <div class="label-sm"><span>Durasi VFX</span></div>
-          <select id="vfxDur">
-            <option value="10">10 Detik</option>
-            <option value="20" selected>20 Detik</option>
+          <div class="label-sm"><span>Durasi Loop</span></div>
+          <select id="vfxDurSel" onchange="setVfxDuration(parseInt(this.value))">
+            <option value="5">5 Detik</option>
+            <option value="10" selected>10 Detik</option>
+            <option value="15">15 Detik</option>
+            <option value="20">20 Detik</option>
             <option value="30">30 Detik</option>
           </select>
         </div>
+        <div>
+          <div class="label-sm"><span>Frame Rate</span></div>
+          <select id="vfxFpsSel" onchange="setVfxFps(parseInt(this.value))">
+            <option value="24">24 FPS</option>
+            <option value="30" selected>30 FPS</option>
+            <option value="60">60 FPS</option>
+          </select>
+        </div>
       </div>
 
-      <button class="btn-primary btn-vfx" id="btnExportVfx" onclick="exportCanvasVideo('vfx')">✨ Render VFX Overlay ke Gallery</button>
+      <div class="grid-2" style="margin-bottom:0;">
+        <button type="button" class="opt-btn" style="padding:13px; font-size:13px;" onclick="ambilFotoVfx()">📸 Simpan PNG</button>
+        <button type="button" class="btn-primary btn-vfx" id="btnExportVfx" onclick="startVfxAutoExport()">💾 Render Loop ke Gallery (10s)</button>
+      </div>
+
       <div class="progress-box" id="progVfx">
-        <div class="label-sm"><span id="progVfxText">Merender VFX...</span><span id="progVfxPct">0%</span></div>
+        <div class="label-sm"><span id="progVfxText">Merender Seamless Loop VFX...</span><span id="progVfxPct">0%</span></div>
         <div class="progress-bar-bg"><div class="progress-bar-fill" id="progVfxFill"></div></div>
       </div>
     </div>
   </div>
 
-  <!-- TAB 3: MY GALLERY -->
+  <!-- ========================================================= -->
+  <!-- TAB 3: MY GALLERY (TERHUBUNG KE TAB 1 & TAB 2)            -->
+  <!-- ========================================================= -->
   <div id="tab-gallery" class="section">
     <div class="hero-title">
       <h1>My Gallery</h1>
-      <p>Semua hasil render tersimpan otomatis. Putar preview atau unduh ke HP.</p>
+      <p>Semua hasil render dari Rain Canvas & VFX Studio tersimpan otomatis. Putar preview atau unduh ke HP.</p>
     </div>
     <div id="galleryEmpty" class="panel" style="text-align:center; padding:30px; color:var(--muted);">
       Belum ada video tersimpan. Buat video pertama kamu di tab <b>Rain Canvas</b> atau <b>VFX Studio</b>.
@@ -422,7 +505,13 @@
 
 <script>
 // ================= NAVIGATION =================
+let activeTab = 'canvas';
 function switchTab(tab, btn) {
+  if (isRainExporting || isVfxRecording) {
+    alert('Tunggu proses render video selesai terlebih dahulu.');
+    return;
+  }
+  activeTab = tab;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
@@ -430,7 +519,34 @@ function switchTab(tab, btn) {
   if (tab === 'gallery') loadGallery();
 }
 
-// ================= TAB 1: RAIN CANVAS + PEN TOOL + UNDO/REDO + ZOOM =================
+// ================= INDEXEDDB GALLERY =================
+let db;
+const dbReq = indexedDB.open('AtmosStudioDB', 1);
+dbReq.onupgradeneeded = (e) => {
+  db = e.target.result;
+  if (!db.objectStoreNames.contains('videos')) {
+    db.createObjectStore('videos', { keyPath: 'id', autoIncrement: true });
+  }
+};
+dbReq.onsuccess = (e) => { db = e.target.result; updateGalleryBadge(); };
+
+function updateGalleryBadge() {
+  if (!db) return;
+  const tx = db.transaction('videos', 'readonly');
+  const countReq = tx.objectStore('videos').count();
+  countReq.onsuccess = () => { document.getElementById('galCount').textContent = countReq.result; };
+}
+
+function saveVideoToGallery(metaObj) {
+  if (!db) return;
+  const tx = db.transaction('videos', 'readwrite');
+  tx.objectStore('videos').add(metaObj);
+  tx.oncomplete = () => { updateGalleryBadge(); };
+}
+
+// =========================================================================
+// BAGIAN 1: RAIN CANVAS + PEN TOOL + UNDO/REDO + ZOOM (DARI index_7.html)
+// =========================================================================
 const rainCanvas = document.getElementById('rainCanvas');
 const rCtx = rainCanvas.getContext('2d');
 const offImgCanvas = document.createElement('canvas');
@@ -452,6 +568,7 @@ let isDrawingMask = false;
 let lastDrawPt = null;
 let rainParticles = [];
 let rainClock = 0;
+let isRainExporting = false;
 
 // Pen Tool (Polygon Anchor Points dalam koordinat 1920x1080)
 let penPoints = [];
@@ -522,7 +639,6 @@ function updateHistoryButtons() {
   document.getElementById('btnRedo').disabled = (penRedoPoints.length === 0 && redoStack.length === 0);
 }
 
-// Pen Tool Polygon Functions
 function closeAndFillPolygon() {
   if (penPoints.length < 3) {
     alert('Minimal buat 3 titik sudut untuk membentuk bidang jendela.');
@@ -575,7 +691,6 @@ function cancelPenPoints() {
   updateHistoryButtons();
 }
 
-// Zoom & Pan Functions
 function clampPan() {
   const W = rainCanvas.width, H = rainCanvas.height;
   const minX = W - (W * zoomLevel);
@@ -773,7 +888,6 @@ function drawMaskStroke(pt1, pt2) {
   offMaskCtx.restore();
 }
 
-// Touch & Mouse Handling
 rainCanvas.addEventListener('touchstart', (e) => {
   if (e.touches.length === 2) {
     isDrawingMask = false;
@@ -974,7 +1088,6 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
   if (advance) rainClock += 0.04;
 
   for (let p of rainParticles) {
-    // Turbulensi: pusaran/hembusan angin acak horizontal & sedikit variasi kecepatan vertikal
     const gustX = Math.sin(rainClock * p.freq + p.phase) * 0.0014 * turbAmt * p.depth;
     const gustY = Math.cos(rainClock * 0.8 + p.phase) * 0.0008 * turbAmt * p.depth;
 
@@ -1079,234 +1192,25 @@ function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
   }
 }
 
-// ================= TAB 2: VFX STUDIO ENGINE (6 EFEK LENGKAP) =================
-const vfxCanvas = document.getElementById('vfxCanvas');
-const vCtx = vfxCanvas.getContext('2d');
-let vfxType = 'rain';
-let vfxParticles = [];
-let vfxClock = 0;
-
-function setVfxType(t, btn) {
-  vfxType = t;
-  document.querySelectorAll('#tab-vfx .grid-3 .opt-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-
-  // Set preset slider default yang pas untuk tiap efek VFX
-  if (t === 'rain') {
-    document.getElementById('vfxAmt').value = 750;
-    document.getElementById('vfxSize').value = 16;
-    document.getElementById('vfxSpd').value = 22;
-    document.getElementById('vfxWind').value = 2;
-    document.getElementById('vfxTurb').value = 2;
-  } else if (t === 'snow') {
-    document.getElementById('vfxAmt').value = 600;
-    document.getElementById('vfxSize').value = 20;
-    document.getElementById('vfxSpd').value = 8;
-    document.getElementById('vfxWind').value = 1;
-    document.getElementById('vfxTurb').value = 10;
-  } else if (t === 'embers') {
-    document.getElementById('vfxAmt').value = 320;
-    document.getElementById('vfxSize').value = 22;
-    document.getElementById('vfxSpd').value = 12;
-    document.getElementById('vfxWind').value = 1;
-    document.getElementById('vfxTurb').value = 14;
-  } else if (t === 'fireflies') {
-    document.getElementById('vfxAmt').value = 160;
-    document.getElementById('vfxSize').value = 26;
-    document.getElementById('vfxSpd').value = 6;
-    document.getElementById('vfxWind').value = 0;
-    document.getElementById('vfxTurb').value = 18;
-  } else if (t === 'dust') {
-    document.getElementById('vfxAmt').value = 450;
-    document.getElementById('vfxSize').value = 14;
-    document.getElementById('vfxSpd').value = 5;
-    document.getElementById('vfxWind').value = 1;
-    document.getElementById('vfxTurb').value = 12;
-  } else if (t === 'bokeh') {
-    document.getElementById('vfxAmt').value = 110;
-    document.getElementById('vfxSize').value = 42;
-    document.getElementById('vfxSpd').value = 5;
-    document.getElementById('vfxWind').value = 0;
-    document.getElementById('vfxTurb').value = 8;
-  }
-
-  updateVfxParams();
-  initVfxParticles();
-}
-
-function updateVfxParams() {
-  const amt = parseInt(document.getElementById('vfxAmt').value);
-  const spd = parseInt(document.getElementById('vfxSpd').value);
-  const sz = parseInt(document.getElementById('vfxSize').value);
-  const wnd = parseInt(document.getElementById('vfxWind').value);
-  const trb = parseInt(document.getElementById('vfxTurb').value);
-  document.getElementById('vfxAmtVal').textContent = amt;
-  document.getElementById('vfxSpdVal').textContent = (spd / 13).toFixed(1) + 'x';
-  document.getElementById('vfxSizeVal').textContent = (sz / 10).toFixed(1);
-  document.getElementById('vfxWindVal').textContent = (wnd >= 0 ? '+' : '') + (wnd / 5).toFixed(1);
-  document.getElementById('vfxTurbVal').textContent = (trb / 10).toFixed(1);
-  if (vfxParticles.length !== amt) initVfxParticles();
-}
-
-function initVfxParticles() {
-  const amt = parseInt(document.getElementById('vfxAmt').value);
-  vfxParticles = [];
-  for (let i = 0; i < amt; i++) {
-    vfxParticles.push({
-      nx: Math.random(),
-      ny: Math.random(),
-      depth: 0.35 + Math.random() * 0.65,
-      phase: Math.random() * Math.PI * 2,
-      freq: 0.6 + Math.random() * 0.9
-    });
-  }
-}
-
-function renderVfxFrame(targetCtx, W, H, advance = true) {
-  targetCtx.fillStyle = '#000000';
-  targetCtx.fillRect(0, 0, W, H);
-
-  const spdNorm = parseInt(document.getElementById('vfxSpd').value) / 720;
-  const szNorm = (parseInt(document.getElementById('vfxSize').value) / 10) / 1280;
-  const windNorm = (parseInt(document.getElementById('vfxWind').value) / 2) / 1280;
-  const turbAmt = parseInt(document.getElementById('vfxTurb').value) / 10;
-
-  if (advance) vfxClock += 0.04;
-
-  for (let p of vfxParticles) {
-    const gustX = Math.sin(vfxClock * p.freq + p.phase) * 0.0015 * turbAmt * p.depth;
-    const gustY = Math.cos(vfxClock * 0.9 + p.phase) * 0.0010 * turbAmt * p.depth;
-
-    let vy = spdNorm * p.depth;
-    if (vfxType === 'snow' || vfxType === 'dust' || vfxType === 'bokeh') vy *= 0.25;
-    if (vfxType === 'embers') vy = -spdNorm * 0.38 * p.depth; // Bara api naik ke atas
-    if (vfxType === 'fireflies') vy = Math.sin(vfxClock * 0.7 + p.phase) * spdNorm * 0.2;
-
-    const vx = windNorm * p.depth + gustX;
-
-    if (advance) {
-      p.ny += vy + (vfxType !== 'rain' ? gustY : 0);
-      p.nx += vx;
-      if (p.ny > 1.05) { p.ny = -0.05; p.nx = Math.random(); }
-      if (p.ny < -0.05) { p.ny = 1.05; p.nx = Math.random(); }
-      if (p.nx > 1.0) p.nx -= 1.0;
-      if (p.nx < 0.0) p.nx += 1.0;
-    }
-
-    const px = p.nx * W;
-    const py = p.ny * H;
-    const pSize = Math.max(1.2, szNorm * W * p.depth);
-    const pVx = vx * W;
-    const twinkle = 0.55 + 0.45 * Math.sin(vfxClock * 2.5 + p.phase);
-
-    if (vfxType === 'rain') {
-      targetCtx.strokeStyle = `rgba(255,255,255,${0.4 + p.depth * 0.6})`;
-      targetCtx.lineWidth = pSize;
-      targetCtx.lineCap = 'round';
-      targetCtx.beginPath();
-      targetCtx.moveTo(px, py);
-      targetCtx.lineTo(px - pVx * 1.3, py - (18 * pSize));
-      targetCtx.stroke();
-    } else if (vfxType === 'snow') {
-      targetCtx.fillStyle = `rgba(255,255,255,${0.45 + p.depth * 0.55})`;
-      targetCtx.beginPath();
-      targetCtx.arc(px, py, pSize * 2.4, 0, Math.PI * 2);
-      targetCtx.fill();
-    } else if (vfxType === 'embers') {
-      const r = pSize * 2.3;
-      const g = targetCtx.createRadialGradient(px, py, 0, px, py, r * 2.2);
-      g.addColorStop(0, `rgba(255, 230, 140, ${twinkle})`);
-      g.addColorStop(0.4, `rgba(255, 110, 20, ${twinkle * 0.85})`);
-      g.addColorStop(1, 'rgba(255, 50, 0, 0)');
-      targetCtx.fillStyle = g;
-      targetCtx.beginPath();
-      targetCtx.arc(px, py, r * 2.2, 0, Math.PI * 2);
-      targetCtx.fill();
-    } else if (vfxType === 'fireflies') {
-      const r = pSize * 2.6;
-      const g = targetCtx.createRadialGradient(px, py, 0, px, py, r * 2.5);
-      g.addColorStop(0, `rgba(235, 255, 160, ${twinkle})`);
-      g.addColorStop(0.45, `rgba(163, 230, 53, ${twinkle * 0.7})`);
-      g.addColorStop(1, 'rgba(101, 163, 13, 0)');
-      targetCtx.fillStyle = g;
-      targetCtx.beginPath();
-      targetCtx.arc(px, py, r * 2.5, 0, Math.PI * 2);
-      targetCtx.fill();
-    } else if (vfxType === 'dust') {
-      targetCtx.fillStyle = `rgba(255, 244, 214, ${(0.25 + p.depth * 0.45) * twinkle})`;
-      targetCtx.beginPath();
-      targetCtx.arc(px, py, pSize * 1.8, 0, Math.PI * 2);
-      targetCtx.fill();
-    } else if (vfxType === 'bokeh') {
-      const r = pSize * 5.5;
-      const g = targetCtx.createRadialGradient(px, py, r * 0.2, px, py, r);
-      g.addColorStop(0, `rgba(253, 224, 71, ${0.18 * twinkle})`);
-      g.addColorStop(0.75, `rgba(245, 158, 11, ${0.28 * twinkle})`);
-      g.addColorStop(1, 'rgba(245, 158, 11, 0)');
-      targetCtx.fillStyle = g;
-      targetCtx.beginPath();
-      targetCtx.arc(px, py, r, 0, Math.PI * 2);
-      targetCtx.fill();
-    }
-  }
-}
-
-let isExporting = false;
-function animateLoop() {
-  if (!isExporting) {
-    const W = rainCanvas.width, H = rainCanvas.height;
-    compositePreviewCanvas.width = W;
-    compositePreviewCanvas.height = H;
-    renderRainFrame(compPrevCtx, W, H, true, true);
-
-    rCtx.clearRect(0, 0, W, H);
-    rCtx.save();
-    rCtx.translate(panX, panY);
-    rCtx.scale(zoomLevel, zoomLevel);
-    rCtx.drawImage(compositePreviewCanvas, 0, 0);
-    rCtx.restore();
-
-    renderVfxFrame(vCtx, vfxCanvas.width, vfxCanvas.height, true);
-  }
-  requestAnimationFrame(animateLoop);
-}
-
-// ================= EXPORT VIDEO & INDEXEDDB GALLERY =================
-let db;
-const req = indexedDB.open('AtmosStudioDB', 1);
-req.onupgradeneeded = (e) => {
-  db = e.target.result;
-  db.createObjectStore('videos', { keyPath: 'id', autoIncrement: true });
-};
-req.onsuccess = (e) => { db = e.target.result; updateGalleryBadge(); };
-
-function updateGalleryBadge() {
-  if (!db) return;
-  const tx = db.transaction('videos', 'readonly');
-  const countReq = tx.objectStore('videos').count();
-  countReq.onsuccess = () => { document.getElementById('galCount').textContent = countReq.result; };
-}
-
-async function exportCanvasVideo(mode) {
-  const isRain = mode === 'rain';
-  const resStr = document.getElementById(isRain ? 'rainRes' : 'vfxRes').value;
-  const durSec = parseInt(document.getElementById(isRain ? 'rainDur' : 'vfxDur').value);
+async function exportRainCanvasVideo() {
+  const resStr = document.getElementById('rainRes').value;
+  const durSec = parseInt(document.getElementById('rainDur').value);
   const [W, H] = resStr.split('x').map(Number);
 
-  const btn = document.getElementById(isRain ? 'btnExportRain' : 'btnExportVfx');
-  const progBox = document.getElementById(isRain ? 'progRain' : 'progVfx');
-  const progFill = document.getElementById(isRain ? 'progRainFill' : 'progVfxFill');
-  const progPct = document.getElementById(isRain ? 'progRainPct' : 'progVfxPct');
+  const btn = document.getElementById('btnExportRain');
+  const progBox = document.getElementById('progRain');
+  const progFill = document.getElementById('progRainFill');
+  const progPct = document.getElementById('progRainPct');
 
   btn.disabled = true;
-  isExporting = true;
+  isRainExporting = true;
   progBox.style.display = 'block';
 
   const recCanvas = document.createElement('canvas');
   recCanvas.width = W; recCanvas.height = H;
   const recCtx = recCanvas.getContext('2d');
 
-  if (isRain) renderRainFrame(recCtx, W, H, false, false); else renderVfxFrame(recCtx, W, H, false);
+  renderRainFrame(recCtx, W, H, false, false);
   const thumbUrl = recCanvas.toDataURL('image/jpeg', 0.75);
 
   const stream = recCanvas.captureStream(30);
@@ -1319,25 +1223,21 @@ async function exportCanvasVideo(mode) {
   recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
   recorder.onstop = () => {
     const blob = new Blob(chunks, { type: mime });
-    const title = isRain ? `RainCanvas_${weatherPreset}_${W}x${H}_${durSec}s.${ext}` : `VFX_${vfxType}_${W}x${H}_${durSec}s.${ext}`;
-    const tx = db.transaction('videos', 'readwrite');
-    tx.objectStore('videos').add({
+    const title = `RainCanvas_${weatherPreset}_${W}x${H}_${durSec}s.${ext}`;
+    saveVideoToGallery({
       title,
-      tag: isRain ? 'Rain Canvas' : 'VFX Overlay',
+      tag: 'Rain Canvas',
       date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
       duration: durSec + 's',
       res: resStr,
       thumb: thumbUrl,
       blob
     });
-    tx.oncomplete = () => {
-      btn.disabled = false;
-      isExporting = false;
-      progBox.style.display = 'none';
-      progFill.style.width = '0%';
-      updateGalleryBadge();
-      alert('Selesai! Video full 16:9 berhasil disimpan ke My Gallery.');
-    };
+    btn.disabled = false;
+    isRainExporting = false;
+    progBox.style.display = 'none';
+    progFill.style.width = '0%';
+    alert('Selesai! Video Rain Canvas berhasil disimpan ke My Gallery.');
   };
 
   recorder.start();
@@ -1350,8 +1250,7 @@ async function exportCanvasVideo(mode) {
     progFill.style.width = pct + '%';
     progPct.textContent = pct + '%';
 
-    if (isRain) renderRainFrame(recCtx, W, H, true, false);
-    else renderVfxFrame(recCtx, W, H, true);
+    renderRainFrame(recCtx, W, H, true, false);
 
     if (elapsed < totalMs) {
       requestAnimationFrame(step);
@@ -1362,7 +1261,1283 @@ async function exportCanvasVideo(mode) {
   requestAnimationFrame(step);
 }
 
-// ================= GALLERY RENDER & ACTIONS =================
+
+// =========================================================================
+// BAGIAN 2: STUDIO SIMULASI CUACA & VFX (100% MESIN DARI index02_2.html)
+// =========================================================================
+const vfxCanvas = document.getElementById('vfxCanvas');
+const vfxFx = document.createElement('canvas');
+const vfxCtx = vfxFx.getContext('2d', { alpha: false });
+
+// WebGL 3D Pipeline untuk VFX Studio
+let vGl = null, vCtx2 = null, vGlBuf = null, vGlMax = 0;
+const vQuad = new Float32Array(24);
+let vRotX = 0, vRotY = 0, vRotZ = 0, vZoom3d = 1;
+
+(function initVfxGL() {
+  try { vGl = vfxCanvas.getContext('webgl', { alpha: false, antialias: false, preserveDrawingBuffer: true }); }
+  catch (e) { vGl = null; }
+  if (!vGl) { vCtx2 = vfxCanvas.getContext('2d'); return; }
+  const sh = (type, src) => { const o = vGl.createShader(type); vGl.shaderSource(o, src); vGl.compileShader(o); return o; };
+  const prog = vGl.createProgram();
+  vGl.attachShader(prog, sh(vGl.VERTEX_SHADER,
+    'attribute vec4 a_pos; attribute vec2 a_uv; varying vec2 v_uv; void main(){ v_uv = a_uv; gl_Position = a_pos; }'));
+  vGl.attachShader(prog, sh(vGl.FRAGMENT_SHADER,
+    'precision mediump float; varying vec2 v_uv; uniform sampler2D u_tex; void main(){ gl_FragColor = texture2D(u_tex, v_uv); }'));
+  vGl.linkProgram(prog);
+  vGl.useProgram(prog);
+  vGlMax = vGl.getParameter(vGl.MAX_TEXTURE_SIZE);
+  vGlBuf = vGl.createBuffer(); vGl.bindBuffer(vGl.ARRAY_BUFFER, vGlBuf);
+  const aPos = vGl.getAttribLocation(prog, 'a_pos'), aUv = vGl.getAttribLocation(prog, 'a_uv');
+  vGl.enableVertexAttribArray(aPos); vGl.vertexAttribPointer(aPos, 4, vGl.FLOAT, false, 24, 0);
+  vGl.enableVertexAttribArray(aUv);  vGl.vertexAttribPointer(aUv, 2, vGl.FLOAT, false, 24, 16);
+  const tex = vGl.createTexture(); vGl.bindTexture(vGl.TEXTURE_2D, tex);
+  vGl.texParameteri(vGl.TEXTURE_2D, vGl.TEXTURE_WRAP_S, vGl.CLAMP_TO_EDGE);
+  vGl.texParameteri(vGl.TEXTURE_2D, vGl.TEXTURE_WRAP_T, vGl.CLAMP_TO_EDGE);
+  vGl.texParameteri(vGl.TEXTURE_2D, vGl.TEXTURE_MIN_FILTER, vGl.LINEAR);
+  vGl.texParameteri(vGl.TEXTURE_2D, vGl.TEXTURE_MAG_FILTER, vGl.LINEAR);
+  vGl.pixelStorei(vGl.UNPACK_FLIP_Y_WEBGL, true);
+  vGl.uniform1i(vGl.getUniformLocation(prog, 'u_tex'), 0);
+})();
+
+let VFX_WIDTH = 1920;
+let VFX_HEIGHT = 1080;
+let VFX_RES_SCALE = 1.0;
+let VFX_TARGET_FPS = 30;
+let VFX_LOOP_DURATION = 10;
+
+let isVfxRecording = false;
+let vfxMediaRecorder = null;
+let vfxVideoTrack = null;
+let vfxChunks = [];
+let vfxWakeLock = null;
+let vfxExportFrameIdx = 0;
+let vfxExportTotalFrames = 0;
+let vfxThumbCapture = '';
+
+vfxCanvas.width = VFX_WIDTH; vfxCanvas.height = VFX_HEIGHT;
+vfxFx.width = VFX_WIDTH; vfxFx.height = VFX_HEIGHT;
+
+function computeVfxQuad(out) {
+  const W = VFX_WIDTH, H = VFX_HEIGHT, D = H * 1.5;
+  const ax = -vRotX * Math.PI / 180, ay = vRotY * Math.PI / 180, az = vRotZ * Math.PI / 180;
+  const cx = Math.cos(ax), sx = Math.sin(ax), cy = Math.cos(ay), sy = Math.sin(ay), cz = Math.cos(az), sz = Math.sin(az);
+  const corners = [[-1, -1, 0, 0], [1, -1, 1, 0], [-1, 1, 0, 1], [1, 1, 1, 1]];
+  for (let i = 0; i < 4; i++) {
+    const c = corners[i];
+    let x = c[0] * W / 2 * vZoom3d, y = c[1] * H / 2 * vZoom3d, z = 0;
+    let t = y * cx - z * sx; z = y * sx + z * cx; y = t;
+    t = x * cy + z * sy; z = -x * sy + z * cy; x = t;
+    t = x * cz + y * sz; y = -x * sz + y * cz; x = t;
+    const w = Math.max(0.05, (D - z) / D);
+    const o = i * 6;
+    out[o] = x / (W / 2); out[o + 1] = y / (H / 2); out[o + 2] = 0; out[o + 3] = w;
+    out[o + 4] = c[2]; out[o + 5] = c[3];
+  }
+}
+
+function presentVfx() {
+  if (vGl) {
+    vGl.viewport(0, 0, vfxCanvas.width, vfxCanvas.height);
+    vGl.clearColor(0, 0, 0, 1); vGl.clear(vGl.COLOR_BUFFER_BIT);
+    vGl.texImage2D(vGl.TEXTURE_2D, 0, vGl.RGBA, vGl.RGBA, vGl.UNSIGNED_BYTE, vfxFx);
+    computeVfxQuad(vQuad);
+    vGl.bufferData(vGl.ARRAY_BUFFER, vQuad, vGl.DYNAMIC_DRAW);
+    vGl.drawArrays(vGl.TRIANGLE_STRIP, 0, 4);
+  } else if (vCtx2) {
+    vCtx2.drawImage(vfxFx, 0, 0);
+  }
+}
+
+// ===== Pre-rendered Procedural Sprites (Lengkap 19 Efek) =====
+const taperedRainSprite = document.createElement('canvas');
+taperedRainSprite.width = 24; taperedRainSprite.height = 160;
+(function () {
+  const s = taperedRainSprite.getContext('2d');
+  const grad = s.createLinearGradient(12, 156, 12, 4);
+  grad.addColorStop(0.0, 'rgba(255, 255, 255, 0.98)');
+  grad.addColorStop(0.18, 'rgba(225, 242, 255, 0.85)');
+  grad.addColorStop(0.60, 'rgba(200, 226, 255, 0.35)');
+  grad.addColorStop(1.0, 'rgba(180, 215, 255, 0.0)');
+  s.fillStyle = grad;
+  s.beginPath();
+  s.arc(12, 152, 4.2, 0, Math.PI, false);
+  s.lineTo(11.3, 4); s.lineTo(12.7, 4);
+  s.closePath(); s.fill();
+})();
+
+const softSmokeSprite = document.createElement('canvas');
+softSmokeSprite.width = softSmokeSprite.height = 160;
+(function () {
+  const s = softSmokeSprite.getContext('2d');
+  const blobs = [
+    { x: 80, y: 80, r: 72, a: 0.45 },
+    { x: 62, y: 70, r: 52, a: 0.35 },
+    { x: 98, y: 74, r: 50, a: 0.35 },
+    { x: 75, y: 98, r: 48, a: 0.30 },
+    { x: 88, y: 60, r: 44, a: 0.25 }
+  ];
+  blobs.forEach(b => {
+    const g = s.createRadialGradient(b.x, b.y, 0, b.x, b.y, b.r);
+    g.addColorStop(0, `rgba(240, 244, 250, ${b.a})`);
+    g.addColorStop(0.45, `rgba(215, 222, 232, ${b.a * 0.45})`);
+    g.addColorStop(1, 'rgba(190, 200, 210, 0)');
+    s.fillStyle = g;
+    s.beginPath(); s.arc(b.x, b.y, b.r, 0, Math.PI * 2); s.fill();
+  });
+})();
+
+const cloudSprite = document.createElement('canvas');
+cloudSprite.width = 320; cloudSprite.height = 200;
+(function () {
+  const s = cloudSprite.getContext('2d');
+  const puffs = [
+    { x: 160, y: 88,  r: 68, top: 'rgba(255,255,255,0.85)', bot: 'rgba(175,190,215,0.15)' },
+    { x: 105, y: 105, r: 58, top: 'rgba(250,252,255,0.80)', bot: 'rgba(165,182,210,0.12)' },
+    { x: 215, y: 108, r: 56, top: 'rgba(250,252,255,0.80)', bot: 'rgba(165,182,210,0.12)' },
+    { x: 64,  y: 124, r: 44, top: 'rgba(240,246,255,0.68)', bot: 'rgba(155,172,200,0.08)' },
+    { x: 256, y: 125, r: 42, top: 'rgba(240,246,255,0.68)', bot: 'rgba(155,172,200,0.08)' },
+    { x: 140, y: 126, r: 54, top: 'rgba(220,230,245,0.55)', bot: 'rgba(140,158,190,0.05)' },
+    { x: 190, y: 126, r: 52, top: 'rgba(220,230,245,0.55)', bot: 'rgba(140,158,190,0.05)' }
+  ];
+  puffs.forEach(p => {
+    const g = s.createRadialGradient(p.x, p.y - p.r * 0.25, p.r * 0.08, p.x, p.y, p.r);
+    g.addColorStop(0, p.top);
+    g.addColorStop(0.55, p.bot);
+    g.addColorStop(1, 'rgba(140,160,190,0)');
+    s.fillStyle = g;
+    s.beginPath(); s.arc(p.x, p.y, p.r, 0, Math.PI * 2); s.fill();
+  });
+})();
+
+const mapleSprites = ['#dc2626', '#ea580c', '#b91c1c'].map(col => {
+  const c = document.createElement('canvas'); c.width = c.height = 56;
+  const s = c.getContext('2d');
+  s.fillStyle = col;
+  s.beginPath();
+  s.moveTo(28, 4); s.lineTo(33, 16); s.lineTo(46, 14); s.lineTo(39, 25);
+  s.lineTo(50, 32); s.lineTo(35, 36); s.lineTo(37, 45); s.lineTo(28, 41);
+  s.lineTo(19, 45); s.lineTo(21, 36); s.lineTo(6, 32); s.lineTo(17, 25);
+  s.lineTo(10, 14); s.lineTo(23, 16); s.closePath(); s.fill();
+  s.strokeStyle = 'rgba(60, 15, 5, 0.5)'; s.lineWidth = 1.6;
+  s.beginPath(); s.moveTo(28, 10); s.lineTo(28, 52); s.stroke();
+  return c;
+});
+
+const greenLeafSprites = ['#22c55e', '#16a34a', '#4ade80'].map(col => {
+  const c = document.createElement('canvas'); c.width = c.height = 52;
+  const s = c.getContext('2d');
+  s.fillStyle = col;
+  s.beginPath();
+  s.moveTo(26, 4); s.bezierCurveTo(42, 16, 40, 36, 26, 44);
+  s.bezierCurveTo(12, 36, 10, 16, 26, 4); s.fill();
+  s.strokeStyle = 'rgba(10, 55, 20, 0.45)'; s.lineWidth = 1.5;
+  s.beginPath(); s.moveTo(26, 8); s.lineTo(26, 50); s.stroke();
+  return c;
+});
+
+const dryLeafSprites = ['#92400e', '#78350f', '#b45309'].map(col => {
+  const c = document.createElement('canvas'); c.width = c.height = 52;
+  const s = c.getContext('2d');
+  s.fillStyle = col;
+  s.beginPath();
+  s.moveTo(26, 5); s.quadraticCurveTo(44, 15, 37, 31);
+  s.quadraticCurveTo(30, 42, 26, 44); s.quadraticCurveTo(22, 42, 15, 31);
+  s.quadraticCurveTo(8, 15, 26, 5); s.fill();
+  s.strokeStyle = 'rgba(45, 20, 5, 0.5)'; s.lineWidth = 1.5;
+  s.beginPath(); s.moveTo(26, 9); s.lineTo(26, 49); s.stroke();
+  return c;
+});
+
+const sakuraSprite = document.createElement('canvas');
+sakuraSprite.width = sakuraSprite.height = 40;
+(function () {
+  const s = sakuraSprite.getContext('2d');
+  const g = s.createRadialGradient(20, 18, 2, 20, 20, 18);
+  g.addColorStop(0, 'rgba(255, 225, 238, 0.98)');
+  g.addColorStop(0.6, 'rgba(255, 165, 195, 0.92)');
+  g.addColorStop(1, 'rgba(235, 115, 155, 0.85)');
+  s.fillStyle = g;
+  s.beginPath();
+  s.moveTo(20, 4); s.bezierCurveTo(32, 8, 36, 24, 20, 36);
+  s.bezierCurveTo(4, 24, 8, 8, 20, 4); s.fill();
+})();
+
+const snowSprite = document.createElement('canvas');
+snowSprite.width = snowSprite.height = 32;
+(function () {
+  const s = snowSprite.getContext('2d');
+  const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+  g.addColorStop(0, 'rgba(255, 255, 255, 1)');
+  g.addColorStop(0.35, 'rgba(235, 245, 255, 0.75)');
+  g.addColorStop(0.75, 'rgba(210, 230, 255, 0.20)');
+  g.addColorStop(1, 'rgba(200, 220, 255, 0)');
+  s.fillStyle = g; s.fillRect(0, 0, 32, 32);
+})();
+
+const dustGoldSprite = document.createElement('canvas');
+dustGoldSprite.width = dustGoldSprite.height = 48;
+(function () {
+  const s = dustGoldSprite.getContext('2d');
+  const g = s.createRadialGradient(24, 24, 0, 24, 24, 24);
+  g.addColorStop(0, 'rgba(255, 248, 220, 1)');
+  g.addColorStop(0.3, 'rgba(230, 235, 255, 0.65)');
+  g.addColorStop(0.7, 'rgba(200, 215, 245, 0.15)');
+  g.addColorStop(1, 'rgba(180, 200, 240, 0)');
+  s.fillStyle = g; s.fillRect(0, 0, 48, 48);
+})();
+
+const emberHotSprite = document.createElement('canvas');
+emberHotSprite.width = emberHotSprite.height = 32;
+(function () {
+  const s = emberHotSprite.getContext('2d');
+  const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+  g.addColorStop(0, 'rgba(255, 255, 240, 1)');
+  g.addColorStop(0.18, 'rgba(255, 210, 90, 0.95)');
+  g.addColorStop(0.42, 'rgba(255, 110, 15, 0.45)');
+  g.addColorStop(1, 'rgba(200, 30, 0, 0)');
+  s.fillStyle = g; s.fillRect(0, 0, 32, 32);
+})();
+
+const emberWarmSprite = document.createElement('canvas');
+emberWarmSprite.width = emberWarmSprite.height = 32;
+(function () {
+  const s = emberWarmSprite.getContext('2d');
+  const g = s.createRadialGradient(16, 16, 0, 16, 16, 16);
+  g.addColorStop(0, 'rgba(255, 190, 60, 1)');
+  g.addColorStop(0.22, 'rgba(255, 85, 10, 0.85)');
+  g.addColorStop(0.55, 'rgba(200, 25, 0, 0.3)');
+  g.addColorStop(1, 'rgba(140, 0, 0, 0)');
+  s.fillStyle = g; s.fillRect(0, 0, 32, 32);
+})();
+
+const glassDropSprite = document.createElement('canvas');
+glassDropSprite.width = glassDropSprite.height = 48;
+(function () {
+  const s = glassDropSprite.getContext('2d');
+  const g = s.createRadialGradient(24, 28, 2, 24, 24, 20);
+  g.addColorStop(0, 'rgba(180, 210, 235, 0.14)');
+  g.addColorStop(0.65, 'rgba(200, 225, 250, 0.30)');
+  g.addColorStop(0.88, 'rgba(235, 248, 255, 0.78)');
+  g.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  s.fillStyle = g;
+  s.beginPath(); s.arc(24, 24, 20, 0, Math.PI * 2); s.fill();
+  s.fillStyle = 'rgba(255, 255, 255, 0.92)';
+  s.beginPath(); s.ellipse(18, 15, 4.5, 2.5, -Math.PI / 5, 0, Math.PI * 2); s.fill();
+})();
+
+const foamBubbleSprite = document.createElement('canvas');
+foamBubbleSprite.width = foamBubbleSprite.height = 32;
+(function () {
+  const s = foamBubbleSprite.getContext('2d');
+  const g = s.createRadialGradient(16, 16, 0, 16, 16, 15);
+  g.addColorStop(0, 'rgba(255, 255, 255, 0.95)');
+  g.addColorStop(0.45, 'rgba(225, 235, 245, 0.65)');
+  g.addColorStop(0.8, 'rgba(180, 195, 210, 0.22)');
+  g.addColorStop(1, 'rgba(160, 175, 190, 0)');
+  s.fillStyle = g;
+  s.beginPath(); s.arc(16, 16, 15, 0, Math.PI * 2); s.fill();
+})();
+
+// ===== VFX Studio State & Parameters =====
+let vfxMode = 'rain';
+let vfxParams = {
+  qty: 1400,
+  speed: 1.2,
+  size: 1.0,
+  wind: 0.5,
+  chaos: 0.5,
+  extra1: 60,
+  extra2: 100
+};
+
+let vParticles = [];
+let vSplashes = [];
+let vLightningBolts = [];
+let vMistPuffs = [];
+let vSimClock = 0;
+
+function buildVfxParticles() {
+  vParticles = [];
+  vSplashes = [];
+  vLightningBolts = [];
+  vMistPuffs = [];
+
+  let count = vfxParams.qty;
+  if (vfxMode === 'smoke') count = Math.min(Math.round(vfxParams.qty * 0.35), 750);
+  if (vfxMode === 'steam') count = Math.min(Math.round(vfxParams.qty * 0.30), 600);
+  if (vfxMode === 'fog') count = Math.min(Math.round(vfxParams.qty * 0.18), 240);
+  if (vfxMode === 'clouds' || vfxMode === 'cloudflash') count = Math.min(Math.max(10, Math.round(vfxParams.qty * 0.035)), 95);
+  if (vfxMode === 'maple' || vfxMode === 'greenleaf' || vfxMode === 'dryleaf' || vfxMode === 'sakura') {
+    count = Math.min(Math.round(vfxParams.qty * 0.40), 750);
+  }
+  if (vfxMode === 'dust') count = Math.min(Math.round(vfxParams.qty * 0.55), 1100);
+  if (vfxMode === 'window') count = Math.min(Math.round(vfxParams.qty * 0.40), 750);
+  if (vfxMode === 'mistyrain' || vfxMode === 'mistysnow') count = Math.min(Math.round(vfxParams.qty * 0.70), 1800);
+  if (vfxMode === 'watercurtain_split' || vfxMode === 'watercurtain_full') count = Math.min(Math.round(vfxParams.qty * 0.65), 1600);
+
+  for (let i = 0; i < count; i++) {
+    let cycles = 1;
+    if (vfxMode === 'rain' || vfxMode === 'storm' || vfxMode === 'mistyrain') {
+      const rLayer = Math.random();
+      const layer = rLayer < 0.50 ? 0 : (rLayer < 0.82 ? 1 : 2);
+      const layerSpeedMult = layer === 0 ? 0.65 : (layer === 1 ? 1.0 : 1.38);
+      cycles = Math.max(2, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 1.15) * layerSpeedMult));
+      vParticles.push({
+        phase: Math.random(),
+        cycles: cycles,
+        xNorm: Math.random() * 1.8 - 0.4,
+        layer: layer,
+        lenSeed: 0.72 + Math.random() * 0.58,
+        alphaSeed: 0.65 + Math.random() * 0.35
+      });
+      continue;
+    }
+    else if (vfxMode === 'clouds' || vfxMode === 'cloudflash') {
+      const z = 0.35 + Math.random() * 0.65;
+      cycles = Math.max(1, Math.round(vfxParams.speed * (z > 0.7 ? 1.2 : 0.8)));
+      vParticles.push({
+        phase: Math.random(),
+        cycles: cycles,
+        xNorm: Math.random(),
+        yNorm: Math.random(),
+        z: z,
+        sizeSeed: 0.65 + Math.random() * 0.85,
+        morphFreq: (1 + Math.floor(Math.random() * 2)) * Math.PI * 2,
+        alphaSeed: 0.65 + Math.random() * 0.35,
+        hasFlash: Math.random() < 0.45,
+        flashPhase: Math.random()
+      });
+      continue;
+    }
+    else if (vfxMode === 'window') {
+      const isSliding = Math.random() < 0.38;
+      cycles = isSliding ? Math.max(1, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 6.0))) : 1;
+      vParticles.push({
+        phase: Math.random(),
+        cycles: cycles,
+        xNorm: Math.random(),
+        yNorm: Math.random(),
+        isSliding: isSliding,
+        sizeSeed: 0.35 + Math.random() * 0.95,
+        wobbleFreq: (2 + Math.floor(Math.random() * 4)) * Math.PI * 2,
+        wobbleAmp: (Math.random() - 0.5) * 14,
+        alphaSeed: 0.6 + Math.random() * 0.4
+      });
+      continue;
+    }
+    else if (vfxMode === 'watercurtain_split' || vfxMode === 'watercurtain_full') {
+      cycles = Math.max(2, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 1.4)));
+      let xNorm = Math.random();
+      if (vfxMode === 'watercurtain_split') {
+        xNorm = (Math.random() < 0.5) ? (Math.random() * 0.34) : (0.66 + Math.random() * 0.34);
+      }
+      vParticles.push({
+        phase: Math.random(),
+        cycles: cycles,
+        xNorm: xNorm,
+        yNorm: Math.random(),
+        z: 0.4 + Math.random() * 0.6,
+        sizeSeed: 0.5 + Math.random() * 1.1,
+        alphaSeed: 0.55 + Math.random() * 0.45,
+        isFoam: Math.random() < 0.45
+      });
+      continue;
+    }
+    else if (vfxMode === 'embers') cycles = Math.max(1, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 6.5)));
+    else if (vfxMode === 'smoke') cycles = Math.max(1, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 8.0)));
+    else if (vfxMode === 'steam') cycles = Math.max(1, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 5.0)));
+    else if (vfxMode === 'fog') cycles = 1;
+    else if (vfxMode === 'snow' || vfxMode === 'mistysnow') cycles = Math.max(1, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 7.5)));
+    else if (vfxMode === 'maple' || vfxMode === 'greenleaf' || vfxMode === 'dryleaf' || vfxMode === 'sakura') {
+      cycles = Math.max(1, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 6.8)));
+    }
+    else if (vfxMode === 'dust') cycles = 1;
+
+    const rSize = Math.random();
+    const sizeSeed = rSize < 0.80 ? (0.35 + Math.random() * 0.45) : (0.80 + Math.random() * 0.60);
+    const xBell = (Math.random() + Math.random() - 1.0) * 0.65;
+
+    vParticles.push({
+      phase: Math.random(),
+      cycles: cycles,
+      xNorm: (vfxMode === 'embers' || vfxMode === 'smoke' || vfxMode === 'steam') ? xBell : (Math.random() * 1.4 - 0.2),
+      yNorm: Math.random(),
+      z: 0.30 + Math.random() * 0.70,
+      sizeSeed: sizeSeed,
+      freq1: (1 + Math.floor(Math.random() * 3)) * Math.PI * 2,
+      freq2: (3 + Math.floor(Math.random() * 5)) * Math.PI * 2,
+      amp1: (Math.random() - 0.5) * 2,
+      amp2: (Math.random() - 0.5) * 2,
+      flickerFreq: (2 + Math.floor(Math.random() * 6)) * Math.PI * 2,
+      alphaSeed: 0.45 + Math.random() * 0.55,
+      isHot: Math.random() > 0.45,
+      colorIdx: Math.floor(Math.random() * 3),
+      rotSeed: Math.random() * Math.PI * 2,
+      rotCycles: (Math.random() > 0.5 ? 1 : -1) * (1 + Math.floor(Math.random() * 2))
+    });
+  }
+
+  if (vfxMode === 'mistyrain' || vfxMode === 'mistysnow') {
+    for (let m = 0; m < 45; m++) {
+      vMistPuffs.push({
+        phase: Math.random(),
+        xNorm: Math.random(),
+        yNorm: Math.random(),
+        sizeSeed: 0.65 + Math.random() * 0.8,
+        alphaSeed: 0.5 + Math.random() * 0.5,
+        rotSeed: Math.random() * Math.PI * 2
+      });
+    }
+  }
+
+  if (vfxMode === 'rain' || vfxMode === 'storm' || vfxMode === 'mistyrain') {
+    const splashCount = Math.min(420, Math.round(vfxParams.qty * 0.22));
+    for (let i = 0; i < splashCount; i++) {
+      vSplashes.push({
+        phase: Math.random(),
+        cycles: Math.max(3, Math.round(vfxParams.speed * (VFX_LOOP_DURATION / 0.65))),
+        xNorm: Math.random(),
+        yZone: 0.85 + Math.random() * 0.14,
+        sizeSeed: 0.6 + Math.random() * 0.8
+      });
+    }
+  }
+
+  if (vfxMode === 'storm') {
+    const boltCount = Math.max(1, Math.floor(VFX_LOOP_DURATION / 4));
+    for (let b = 0; b < boltCount; b++) {
+      const startX = (0.2 + Math.random() * 0.6) * 1920;
+      const pts = [{ x: startX, y: 0 }];
+      let cx = startX, cy = 0;
+      while (cy < 780) {
+        cy += 35 + Math.random() * 45;
+        cx += (Math.random() - 0.5) * 85;
+        pts.push({ x: cx, y: cy });
+      }
+      vLightningBolts.push({
+        triggerNorm: (b + 0.35 + Math.random() * 0.3) / boltCount,
+        pts: pts
+      });
+    }
+  }
+}
+
+function drawVfxMistLayer(tSec, W, H, RS, T, mistStrength) {
+  if (mistStrength <= 0) return;
+  vfxCtx.globalCompositeOperation = 'screen';
+  const driftDir = vfxParams.wind >= 0 ? 1 : -1;
+  const driftCycles = Math.max(1, Math.round(vfxParams.speed * 0.6));
+  for (let m = 0; m < vMistPuffs.length; m++) {
+    const p = vMistPuffs[m];
+    const u = ((tSec / T) * driftCycles + p.phase) % 1.0;
+    const travel = (Math.abs(vfxParams.wind) > 0.05)
+      ? ((p.xNorm + u * driftDir) % 1.4 + 1.4) % 1.4 - 0.2
+      : p.xNorm + Math.sin(u * Math.PI * 2 + p.phase * 6.28) * 0.06 * vfxParams.chaos;
+    const x = travel * W;
+    const y = p.yNorm * H;
+    const sz = (360 + p.sizeSeed * 440) * RS * vfxParams.size;
+    vfxCtx.globalAlpha = Math.min(1, 0.065 * p.alphaSeed * mistStrength);
+    vfxCtx.save();
+    vfxCtx.translate(x, y);
+    vfxCtx.rotate(p.rotSeed + Math.sin(u * Math.PI * 2) * 0.2);
+    vfxCtx.drawImage(softSmokeSprite, -sz / 2, -sz / 2, sz, sz);
+    vfxCtx.restore();
+  }
+}
+
+function renderSeamlessVfxFrame(tSec) {
+  const W = VFX_WIDTH;
+  const H = VFX_HEIGHT;
+  const RS = VFX_RES_SCALE;
+  const T = VFX_LOOP_DURATION;
+
+  vfxCtx.globalCompositeOperation = 'source-over';
+  vfxCtx.globalAlpha = 1;
+  vfxCtx.fillStyle = '#000000';
+  vfxCtx.fillRect(0, 0, W, H);
+
+  const areaW = W * (vfxParams.extra1 / 100);
+  const maxH = H * (Math.max(20, vfxParams.extra2) / 100);
+  const centerX = W / 2;
+  const baseY = H + 15 * RS;
+
+  // 1. HUJAN 3-LAYER, HUJAN BERKABU & BADAI
+  if (vfxMode === 'rain' || vfxMode === 'storm' || vfxMode === 'mistyrain') {
+    if (vfxMode === 'mistyrain') {
+      drawVfxMistLayer(tSec, W, H, RS, T, Math.max(0.25, vfxParams.extra2 / 100));
+    }
+    if (vfxMode === 'storm' && vfxParams.extra2 > 0) {
+      const normT = tSec / T;
+      const intensity = vfxParams.extra2 / 100;
+      for (let b = 0; b < vLightningBolts.length; b++) {
+        const bolt = vLightningBolts[b];
+        const dt = Math.abs(normT - bolt.triggerNorm);
+        if (dt < 0.018) {
+          const flash = Math.cos((dt / 0.018) * (Math.PI / 2)) * intensity;
+          vfxCtx.fillStyle = `rgba(180, 210, 255, ${(flash * 0.22).toFixed(3)})`;
+          vfxCtx.fillRect(0, 0, W, H);
+
+          vfxCtx.globalCompositeOperation = 'lighter';
+          vfxCtx.strokeStyle = `rgba(220, 240, 255, ${(flash * 0.95).toFixed(3)})`;
+          vfxCtx.lineWidth = 3.2 * RS;
+          vfxCtx.beginPath();
+          bolt.pts.forEach((pt, idx) => {
+            const px = (pt.x / 1920) * W;
+            const py = (pt.y / 1080) * H;
+            if (idx === 0) vfxCtx.moveTo(px, py);
+            else vfxCtx.lineTo(px, py);
+          });
+          vfxCtx.stroke();
+        }
+      }
+    }
+
+    vfxCtx.globalCompositeOperation = 'lighter';
+    const windDeg = vfxParams.wind * 14;
+    const windRad = (windDeg * Math.PI) / 180;
+    const tanWind = Math.tan(windRad);
+    const totalTravelY = H + 280 * RS;
+    const stormMult = vfxMode === 'storm' ? 1.35 : 1.0;
+
+    const layerSpecs = [
+      { w: 2.2, len: 42,  alpha: 0.24 },
+      { w: 3.6, len: 74,  alpha: 0.48 },
+      { w: 5.4, len: 118, alpha: 0.80 }
+    ];
+
+    for (let i = 0; i < vParticles.length; i++) {
+      const d = vParticles[i];
+      const u = ((tSec / T) * d.cycles + d.phase) % 1.0;
+      const yHead = -140 * RS + u * totalTravelY;
+      const xHead = d.xNorm * W + (yHead * tanWind);
+      if (xHead < -160 * RS || xHead > W + 160 * RS) continue;
+
+      const spec = layerSpecs[d.layer];
+      const dropW = spec.w * vfxParams.size * RS;
+      const dropH = spec.len * d.lenSeed * stormMult * RS;
+      const alpha = Math.min(1.0, spec.alpha * d.alphaSeed);
+      if (alpha <= 0.01) continue;
+
+      vfxCtx.globalAlpha = alpha;
+      vfxCtx.save();
+      vfxCtx.translate(xHead, yHead);
+      vfxCtx.rotate(-windRad);
+      vfxCtx.drawImage(taperedRainSprite, -dropW / 2, -dropH, dropW, dropH);
+      vfxCtx.restore();
+    }
+
+    if (vfxParams.extra1 > 0) {
+      const activeSplashes = Math.floor(vSplashes.length * (vfxParams.extra1 / 100));
+      for (let i = 0; i < activeSplashes; i++) {
+        const s = vSplashes[i];
+        const u = ((tSec / T) * s.cycles + s.phase) % 1.0;
+        const alpha = Math.sin(Math.PI * u) * 0.60;
+        if (alpha <= 0.01) continue;
+
+        const cx = s.xNorm * W;
+        const cy = s.yZone * H;
+        const r = u * (11 + s.sizeSeed * 12) * RS * vfxParams.size;
+
+        vfxCtx.globalAlpha = alpha * 0.75;
+        vfxCtx.strokeStyle = 'rgba(215, 236, 255, 1)';
+        vfxCtx.lineWidth = 1.1 * RS;
+        vfxCtx.beginPath();
+        vfxCtx.ellipse(cx, cy, r, r * 0.28, 0, 0, Math.PI * 2);
+        vfxCtx.stroke();
+
+        const hopH = Math.sin(Math.PI * u) * (14 * s.sizeSeed * RS);
+        const hopW = u * (11 * s.sizeSeed * RS);
+        vfxCtx.fillStyle = 'rgba(230, 245, 255, 1)';
+        vfxCtx.fillRect(cx - hopW, cy - hopH, 1.8 * RS, 1.8 * RS);
+        vfxCtx.fillRect(cx + hopW, cy - hopH * 0.85, 1.8 * RS, 1.8 * RS);
+      }
+    }
+  }
+  // 2. TIRAI AIR (2 MODE: TERBELAH KIRI-KANAN & PENUH)
+  else if (vfxMode === 'watercurtain_split' || vfxMode === 'watercurtain_full') {
+    vfxCtx.globalCompositeOperation = 'lighter';
+    const foamDensity = Math.max(0.2, vfxParams.extra1 / 100);
+    const streamLenMult = Math.max(0.3, vfxParams.extra2 / 100);
+    const windShiftBase = vfxParams.wind * 45 * RS;
+
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+      const y = -80 * RS + u * (H + 160 * RS);
+      const wave = Math.sin(u * Math.PI * 4 + p.xNorm * 25) * 10 * vfxParams.chaos * RS;
+      const x = p.xNorm * W + wave + windShiftBase * u;
+
+      if (p.isFoam) {
+        const bSz = (8 + p.sizeSeed * 14) * RS * vfxParams.size * p.z;
+        vfxCtx.globalAlpha = Math.min(1, p.alphaSeed * 0.75 * foamDensity);
+        vfxCtx.drawImage(foamBubbleSprite, x - bSz / 2, y - bSz / 2, bSz, bSz);
+      } else {
+        const sW = (2.2 + p.sizeSeed * 3.4) * RS * vfxParams.size * p.z;
+        const sH = (48 + p.sizeSeed * 72) * RS * streamLenMult;
+        vfxCtx.globalAlpha = Math.min(1, p.alphaSeed * 0.65);
+        vfxCtx.drawImage(taperedRainSprite, x - sW / 2, y - sH, sW, sH);
+      }
+    }
+
+    const bottomFoamCount = Math.round(55 * foamDensity);
+    for (let f = 0; f < bottomFoamCount; f++) {
+      const fu = ((tSec / T) * Math.max(2, Math.round(vfxParams.speed * 2)) + f * 0.13) % 1.0;
+      let fxPos = ((f * 0.037 + fu * 0.08 * vfxParams.wind) % 1.0 + 1.0) % 1.0;
+      if (vfxMode === 'watercurtain_split' && fxPos > 0.34 && fxPos < 0.66) continue;
+      const fyPos = H - (12 + (f % 6) * 14) * RS - Math.sin(fu * Math.PI) * 16 * RS;
+      const fSz = (16 + (f % 5) * 8) * RS * vfxParams.size;
+      vfxCtx.globalAlpha = (0.35 + 0.35 * Math.sin(fu * Math.PI * 2)) * foamDensity;
+      vfxCtx.drawImage(foamBubbleSprite, fxPos * W - fSz / 2, fyPos - fSz / 2, fSz, fSz);
+    }
+  }
+  // 3. TETESAN KACA
+  else if (vfxMode === 'window') {
+    vfxCtx.globalCompositeOperation = 'screen';
+    const slideRatio = vfxParams.extra1 / 100;
+    const trailOpacity = vfxParams.extra2 / 100;
+
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+
+      if (p.isSliding && slideRatio > 0.05) {
+        const startY = (p.yNorm * 0.35) * H;
+        const travelY = H * 0.95;
+        const curY = startY + u * travelY;
+        const wobble = Math.sin(u * p.wobbleFreq) * p.wobbleAmp * vfxParams.chaos * RS;
+        const curX = p.xNorm * W + wobble + (u * vfxParams.wind * 90 * RS);
+
+        if (trailOpacity > 0) {
+          const steps = 14;
+          for (let s = 1; s <= steps; s++) {
+            const uBack = Math.max(0, u - s * 0.016);
+            if (uBack <= 0) break;
+            const ty = startY + uBack * travelY;
+            const tx = p.xNorm * W + Math.sin(uBack * p.wobbleFreq) * p.wobbleAmp * vfxParams.chaos * RS + (uBack * vfxParams.wind * 90 * RS);
+            const tSz = (3.5 + (1 - s / steps) * 4.5) * RS * vfxParams.size;
+            vfxCtx.globalAlpha = (1 - s / steps) * 0.55 * trailOpacity;
+            vfxCtx.drawImage(glassDropSprite, tx - tSz / 2, ty - tSz / 2, tSz, tSz);
+          }
+        }
+
+        const headSz = (16 + p.sizeSeed * 18) * RS * vfxParams.size;
+        const fade = u > 0.85 ? (1 - u) / 0.15 : 1.0;
+        vfxCtx.globalAlpha = Math.min(1, p.alphaSeed * fade);
+        vfxCtx.drawImage(glassDropSprite, curX - headSz / 2, curY - headSz * 0.65, headSz, headSz * 1.25);
+      } else {
+        const pulse = 0.88 + 0.12 * Math.sin(u * Math.PI * 2 + p.phase * 6.28);
+        const sz = (7 + p.sizeSeed * 16) * RS * vfxParams.size * pulse;
+        vfxCtx.globalAlpha = Math.min(1, p.alphaSeed * 0.85);
+        vfxCtx.drawImage(glassDropSprite, p.xNorm * W - sz / 2, p.yNorm * H - sz / 2, sz, sz);
+      }
+    }
+  }
+  // 4. KABUT / MIST
+  else if (vfxMode === 'fog') {
+    vfxCtx.globalCompositeOperation = 'screen';
+    const densityMult = vfxParams.extra2 / 100;
+    const heightZone = Math.max(0.2, vfxParams.extra1 / 100);
+    const driftDir = vfxParams.wind >= 0 ? 1 : -1;
+    const driftCycles = Math.max(1, Math.round(vfxParams.speed));
+
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * driftCycles + p.phase) % 1.0;
+      const travel = (Math.abs(vfxParams.wind) > 0.05)
+        ? ((p.xNorm + u * driftDir) % 1.4 + 1.4) % 1.4 - 0.2
+        : p.xNorm + Math.sin(u * Math.PI * 2 + p.phase * 6.28) * 0.08 * vfxParams.chaos;
+
+      const x = travel * W;
+      const y = H - (p.yNorm * H * heightZone);
+      const sz = (320 + p.sizeSeed * 460) * RS * vfxParams.size;
+      const rot = p.rotSeed + Math.sin(u * Math.PI * 2) * 0.25 * vfxParams.chaos;
+
+      vfxCtx.globalAlpha = Math.min(1, 0.09 * p.alphaSeed * densityMult);
+      vfxCtx.save();
+      vfxCtx.translate(x, y);
+      vfxCtx.rotate(rot);
+      vfxCtx.drawImage(softSmokeSprite, -sz / 2, -sz / 2, sz, sz);
+      vfxCtx.restore();
+    }
+  }
+  // 5. AWAN & AWAN KILATAN PUTIH BERLAYAR
+  else if (vfxMode === 'clouds' || vfxMode === 'cloudflash') {
+    const isFlash = (vfxMode === 'cloudflash');
+    vfxCtx.globalCompositeOperation = isFlash ? 'lighter' : 'screen';
+    const skyZone = Math.max(0.2, vfxParams.extra1 / 100);
+    const opacityMult = vfxParams.extra2 / 100;
+    const dir = vfxParams.wind >= 0 ? 1 : -1;
+
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+
+      const span = 1.6;
+      const posNorm = (Math.abs(vfxParams.wind) > 0.05)
+        ? (((p.xNorm + u * dir) % 1.0 + 1.0) % 1.0) * span - 0.3
+        : (p.xNorm * span - 0.3) + Math.sin(u * Math.PI * 2 + p.phase * 6.28) * 0.04;
+
+      const x = posNorm * W;
+      const y = (0.06 + p.yNorm * 0.78 * skyZone) * H;
+
+      const morph = 1.0 + Math.sin(u * p.morphFreq + p.phase * 6.28) * 0.08 * vfxParams.chaos;
+      const wCloud = (420 + p.sizeSeed * 480) * RS * vfxParams.size * p.z * morph;
+      const hCloud = wCloud * 0.62;
+
+      let flashBoost = 1.0;
+      if (isFlash && p.hasFlash) {
+        const fu = ((tSec / T) * 2 + p.flashPhase) % 1.0;
+        const pulse = Math.pow(Math.max(0, Math.sin(fu * Math.PI * 2)), 6);
+        flashBoost = 1.0 + pulse * 1.45;
+      }
+
+      const baseAlpha = isFlash ? (0.18 + p.z * 0.25) : (0.30 + p.z * 0.45);
+      vfxCtx.globalAlpha = Math.min(1, baseAlpha * p.alphaSeed * opacityMult * flashBoost);
+      vfxCtx.drawImage(cloudSprite, x - wCloud / 2, y - hCloud / 2, wCloud, hCloud);
+    }
+  }
+  // 6. DAUN GUGUR TERPISAH & SAKURA
+  else if (vfxMode === 'maple' || vfxMode === 'greenleaf' || vfxMode === 'dryleaf' || vfxMode === 'sakura') {
+    vfxCtx.globalCompositeOperation = 'source-over';
+    const spriteSet = (vfxMode === 'maple') ? mapleSprites
+                    : (vfxMode === 'greenleaf') ? greenLeafSprites
+                    : (vfxMode === 'dryleaf') ? dryLeafSprites
+                    : null;
+
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+      const y = -50 * RS + u * (H + 100 * RS);
+      const sway = Math.sin(u * p.freq1 + p.phase * 6.28) * 110 * vfxParams.chaos * RS;
+      const windShift = u * (vfxParams.wind * 340 + 110) * RS;
+      const x = ((p.xNorm * W + sway + windShift) % W + W) % W;
+
+      const baseSz = (vfxMode === 'sakura') ? (12 + p.sizeSeed * 18) : (18 + p.sizeSeed * 24);
+      const sz = baseSz * RS * vfxParams.size * p.z;
+      const rot = p.rotSeed + u * p.rotCycles * Math.PI * 2;
+      const flipScale = 0.40 + 0.60 * Math.abs(Math.cos(u * p.freq2 + p.phase * 6.28));
+
+      vfxCtx.globalAlpha = Math.min(1, (0.65 + p.z * 0.35) * p.alphaSeed);
+      vfxCtx.save();
+      vfxCtx.translate(x, y);
+      vfxCtx.rotate(rot);
+      vfxCtx.scale(1, flipScale);
+      const img = spriteSet ? spriteSet[p.colorIdx] : sakuraSprite;
+      vfxCtx.drawImage(img, -sz / 2, -sz / 2, sz, sz);
+      vfxCtx.restore();
+    }
+  }
+  // 7. SALJU & SALJU BERKABUT
+  else if (vfxMode === 'snow' || vfxMode === 'mistysnow') {
+    if (vfxMode === 'mistysnow') {
+      drawVfxMistLayer(tSec, W, H, RS, T, Math.max(0.25, vfxParams.extra2 / 100));
+    }
+    vfxCtx.globalCompositeOperation = 'screen';
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+      const y = -30 * RS + u * (H + 60 * RS);
+      const sway = Math.sin(u * p.freq1 + p.phase * 6.28) * 65 * vfxParams.chaos * RS;
+      const windShift = u * vfxParams.wind * 260 * RS;
+      const x = ((p.xNorm * W + sway + windShift) % W + W) % W;
+
+      const sz = (5 + p.sizeSeed * 14) * RS * vfxParams.size * p.z;
+      vfxCtx.globalAlpha = Math.min(1, (0.35 + p.z * 0.6) * p.alphaSeed);
+      vfxCtx.drawImage(snowSprite, x - sz / 2, y - sz / 2, sz, sz);
+    }
+  }
+  // 8. DEBU MELAYANG / BOKEH
+  else if (vfxMode === 'dust') {
+    vfxCtx.globalCompositeOperation = 'lighter';
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+      const orbitX = Math.cos(u * Math.PI * 2 + p.phase * 6.28) * 75 * vfxParams.chaos * RS;
+      const orbitY = Math.sin(u * Math.PI * 2 + p.rotSeed) * 55 * vfxParams.chaos * RS;
+      const driftX = u * vfxParams.wind * 180 * RS;
+
+      const x = ((p.xNorm * W + orbitX + driftX) % W + W) % W;
+      const y = ((p.yNorm * H + orbitY) % H + H) % H;
+
+      const twinkle = 0.25 + 0.75 * (0.5 + 0.5 * Math.sin(u * p.flickerFreq + p.phase * 6.28));
+      const sz = (5 + p.sizeSeed * 20) * RS * vfxParams.size * p.z;
+
+      vfxCtx.globalAlpha = Math.min(1, twinkle * p.alphaSeed * 0.85);
+      vfxCtx.drawImage(dustGoldSprite, x - sz / 2, y - sz / 2, sz, sz);
+    }
+  }
+  // 9. BARA API (EMBERS)
+  else if (vfxMode === 'embers') {
+    vfxCtx.globalCompositeOperation = 'lighter';
+    const dtStep = 0.015;
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+
+      let lifeAlpha = 1.0;
+      if (u < 0.08) lifeAlpha = u / 0.08;
+      else if (u > 0.60) lifeAlpha = Math.max(0, (1.0 - u) / 0.40);
+
+      const rawWave = Math.sin(u * p.flickerFreq + p.phase * 6.28);
+      const flicker = 0.35 + 0.65 * Math.pow(0.5 + 0.5 * rawWave, 1.8);
+      const alpha = lifeAlpha * flicker * p.alphaSeed;
+      if (alpha <= 0.015) continue;
+
+      const y = baseY - Math.pow(u, 0.95) * (maxH + 30 * RS);
+      const swirl = (Math.sin(u * p.freq1) * p.amp1 * 48 + Math.cos(u * p.freq2) * p.amp2 * 24) * vfxParams.chaos * RS;
+      const windShift = Math.pow(u, 1.1) * vfxParams.wind * 340 * RS;
+      const x = centerX + p.xNorm * areaW * (0.85 + u * 0.4) + swirl + windShift;
+
+      const uPrev = (u - dtStep + 1.0) % 1.0;
+      const yPrev = baseY - Math.pow(uPrev, 0.95) * (maxH + 30 * RS);
+      const swirlPrev = (Math.sin(uPrev * p.freq1) * p.amp1 * 48 + Math.cos(uPrev * p.freq2) * p.amp2 * 24) * vfxParams.chaos * RS;
+      const windPrev = Math.pow(uPrev, 1.1) * vfxParams.wind * 340 * RS;
+      const xPrev = centerX + p.xNorm * areaW * (0.85 + uPrev * 0.4) + swirlPrev + windPrev;
+
+      const dx = x - xPrev, dy = y - yPrev;
+      const angle = Math.atan2(dy, dx);
+      const speedMag = Math.hypot(dx, dy);
+      const baseDiam = (3.2 + p.sizeSeed * 5.8) * RS * vfxParams.size * (1.05 - u * 0.45);
+      const stretch = Math.min(2.4, 1.0 + (speedMag / (14 * RS)) * 0.65);
+      const sprite = (p.isHot && u < 0.55) ? emberHotSprite : emberWarmSprite;
+
+      vfxCtx.globalAlpha = Math.min(1, alpha);
+      vfxCtx.save();
+      vfxCtx.translate(x, y);
+      vfxCtx.rotate(angle);
+      vfxCtx.drawImage(sprite, (-baseDiam * stretch) / 2, -baseDiam / 2, baseDiam * stretch, baseDiam);
+      vfxCtx.restore();
+    }
+  }
+  // 10. ASAP & UAP
+  else if (vfxMode === 'smoke' || vfxMode === 'steam') {
+    vfxCtx.globalCompositeOperation = 'screen';
+    const isSmoke = (vfxMode === 'smoke');
+    for (let i = 0; i < vParticles.length; i++) {
+      const p = vParticles[i];
+      const u = ((tSec / T) * p.cycles + p.phase) % 1.0;
+      const envelope = Math.sin(Math.PI * Math.pow(u, isSmoke ? 0.85 : 0.72));
+      const alpha = envelope * (isSmoke ? 0.14 : 0.12) * p.alphaSeed;
+      if (alpha <= 0.002) continue;
+
+      const y = baseY - Math.pow(u, isSmoke ? 0.9 : 0.85) * (maxH + (isSmoke ? 90 : 60) * RS);
+      const spreadFactor = (isSmoke ? 0.22 : 0.30) + u * (isSmoke ? 1.5 : 1.15);
+      const swirl = (Math.sin(u * p.freq1 + p.phase * 6.28) * 52 * u * vfxParams.chaos) * RS;
+      const windShift = Math.pow(u, 1.15) * vfxParams.wind * (isSmoke ? 320 : 250) * RS;
+      const x = centerX + (p.xNorm * areaW * spreadFactor) + swirl + windShift;
+
+      const sz = ((isSmoke ? 75 : 60) + u * (isSmoke ? 280 : 195)) * p.sizeSeed * RS * vfxParams.size;
+      const rot = p.rotSeed + u * p.rotCycles * Math.PI * 2;
+
+      vfxCtx.globalAlpha = Math.min(1, alpha);
+      vfxCtx.save();
+      vfxCtx.translate(x, y);
+      vfxCtx.rotate(rot);
+      vfxCtx.drawImage(softSmokeSprite, -sz / 2, -sz / 2, sz, sz);
+      vfxCtx.restore();
+    }
+  }
+
+  vfxCtx.globalAlpha = 1;
+  vfxCtx.globalCompositeOperation = 'source-over';
+}
+
+const ALL_VFX_MODES = [
+  'rain', 'mistyrain', 'storm', 'snow', 'mistysnow', 'fog',
+  'clouds', 'cloudflash', 'window',
+  'watercurtain_split', 'watercurtain_full',
+  'maple', 'greenleaf', 'dryleaf', 'sakura', 'dust', 'embers', 'smoke', 'steam'
+];
+
+function setVfxMode(newMode) {
+  if (isVfxRecording) return;
+  vfxMode = newMode;
+  ALL_VFX_MODES.forEach(m => {
+    const btn = document.getElementById('vbtn_' + m);
+    if (btn) btn.classList.toggle('active', m === vfxMode);
+  });
+
+  if (vfxMode === 'rain') {
+    setVfxLabels('Jumlah Tetesan', 'Kecepatan Jatuh', 'Tebal Tetesan', 'Arah Angin', 'Turbulensi', 'Percikan Tanah', 'Detail');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1400, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.2, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.5, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 0.5, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 60, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 100, '%');
+  } else if (vfxMode === 'mistyrain') {
+    setVfxLabels('Jumlah Tetesan', 'Kecepatan Jatuh', 'Tebal Tetesan', 'Arah Angin', 'Turbulensi', 'Percikan Tanah', 'Tebal Kabut');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1500, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.1, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.5, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 0.7, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 60, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 85, '%');
+  } else if (vfxMode === 'storm') {
+    setVfxLabels('Tetesan Badai', 'Kecepatan Jatuh', 'Tebal Tetesan', 'Angin Badai', 'Turbulensi', 'Percikan Tanah', 'Intensitas Petir');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 2800, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 2.0, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.2, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 1.6, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.4, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 85, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 75, '%');
+  } else if (vfxMode === 'snow') {
+    setVfxLabels('Butiran Salju', 'Kecepatan Jatuh', 'Ukuran Salju', 'Angin Samping', 'Ayunan Salju', 'Sebaran', 'Detail');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1400, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 0.9, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.4, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.2, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 100, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 100, '%');
+  } else if (vfxMode === 'mistysnow') {
+    setVfxLabels('Butiran Salju', 'Kecepatan Jatuh', 'Ukuran Salju', 'Angin Samping', 'Ayunan Salju', 'Sebaran', 'Tebal Kabut');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1400, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 0.9, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.4, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.2, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 100, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 90, '%');
+  } else if (vfxMode === 'fog') {
+    setVfxLabels('Ketebalan Kabut', 'Kecepatan Geser', 'Luas Gumpalan', 'Arah Angin', 'Pusaran', 'Tinggi Kabut', 'Opasitas');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 900, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.0, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.2, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.6, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 0.8, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 65, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 85, '%');
+  } else if (vfxMode === 'clouds') {
+    setVfxLabels('Jumlah Awan', 'Kecepatan Geser', 'Ukuran Awan', 'Arah Angin', 'Perubahan Bentuk', 'Area Langit', 'Kepadatan');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 800, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.0, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.1, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.8, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 0.8, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 65, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 90, '%');
+  } else if (vfxMode === 'cloudflash') {
+    setVfxLabels('Gumpalan Awan', 'Kecepatan Berlayar', 'Ukuran Awan', 'Arah Angin', 'Turbulensi Awan', 'Area Langit', 'Kilatan Putih');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 950, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.0, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.2, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.7, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.1, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 75, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 90, '%');
+  } else if (vfxMode === 'window') {
+    setVfxLabels('Jumlah Tetesan', 'Laju Meluncur', 'Ukuran Tetes', 'Kemiringan', 'Kelokan Air', 'Tetes Meluncur', 'Jejak Air');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1100, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.0, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.0, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.0, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 80, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 90, '%');
+  } else if (vfxMode === 'watercurtain_split' || vfxMode === 'watercurtain_full') {
+    setVfxLabels('Kepadatan Tirai', 'Kecepatan Jatuh', 'Ukuran Buana', 'Arah Aliran', 'Riak Air', 'Kepadatan Busa', 'Panjang Aliran');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1600, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.3, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.1, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 0.9, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 85, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 95, '%');
+  } else if (vfxMode === 'maple' || vfxMode === 'greenleaf' || vfxMode === 'dryleaf') {
+    setVfxLabels('Jumlah Daun', 'Kecepatan Jatuh', 'Ukuran Daun', 'Angin Samping', 'Ayunan Daun', 'Sebaran', 'Detail');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 600, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.0, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.1, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.7, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.3, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 100, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 100, '%');
+  } else if (vfxMode === 'sakura') {
+    setVfxLabels('Jumlah Kelopak', 'Kecepatan Jatuh', 'Ukuran Kelopak', 'Angin Samping', 'Putaran Kelopak', 'Sebaran', 'Detail');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 700, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.0, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.1, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.8, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.4, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 100, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 100, '%');
+  } else if (vfxMode === 'dust') {
+    setVfxLabels('Partikel Debu', 'Kecepatan Melayang', 'Ukuran Partikel', 'Aliran Udara', 'Gerak Melayang', 'Sebaran', 'Detail');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 800, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 0.8, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.2, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.2, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 100, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 100, '%');
+  } else if (vfxMode === 'embers') {
+    setVfxLabels('Jumlah Bara', 'Kecepatan Naik', 'Ukuran Bara', 'Angin Samping', 'Turbulensi', 'Lebar Api', 'Tinggi Pudar');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1500, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.3, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 0.8, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.0, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.0, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 50, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 100, '%');
+  } else if (vfxMode === 'smoke' || vfxMode === 'steam') {
+    setVfxLabels('Kepadatan Asap', 'Kecepatan Naik', 'Ukuran Gumpalan', 'Angin Samping', 'Pusaran', 'Lebar Sumber', 'Tinggi Pudar');
+    setVfxSlider('vinQty', 'vvalQty', 'qty', 1100, '');
+    setVfxSlider('vinSpeed', 'vvalSpeed', 'speed', 1.1, 'x');
+    setVfxSlider('vinSize', 'vvalSize', 'size', 1.0, 'x');
+    setVfxSlider('vinWind', 'vvalWind', 'wind', 0.0, '');
+    setVfxSlider('vinChaos', 'vvalChaos', 'chaos', 1.1, '');
+    setVfxSlider('vinExtra1', 'vvalExtra1', 'extra1', 25, '%');
+    setVfxSlider('vinExtra2', 'vvalExtra2', 'extra2', 100, '%');
+  }
+  buildVfxParticles();
+}
+
+function setVfxLabels(l1, l2, l3, l4, l5, l6, l7) {
+  document.getElementById('vlblQty').textContent = l1;
+  document.getElementById('vlblSpeed').textContent = l2;
+  document.getElementById('vlblSize').textContent = l3;
+  document.getElementById('vlblWind').textContent = l4;
+  document.getElementById('vlblChaos').textContent = l5;
+  document.getElementById('vlblExtra1').textContent = l6;
+  document.getElementById('vlblExtra2').textContent = l7;
+}
+
+function setVfxSlider(idIn, idVal, key, val, suffix) {
+  vfxParams[key] = parseFloat(val);
+  document.getElementById(idIn).value = val;
+  document.getElementById(idVal).textContent = val + suffix;
+}
+
+function updateVfxParam(key, val) {
+  val = parseFloat(val);
+  vfxParams[key] = val;
+  if (key === 'qty') { document.getElementById('vvalQty').textContent = val; buildVfxParticles(); }
+  else if (key === 'speed') { document.getElementById('vvalSpeed').textContent = val.toFixed(1) + 'x'; buildVfxParticles(); }
+  else if (key === 'size') { document.getElementById('vvalSize').textContent = val.toFixed(1) + 'x'; }
+  else if (key === 'wind') { document.getElementById('vvalWind').textContent = val.toFixed(1); }
+  else if (key === 'chaos') { document.getElementById('vvalChaos').textContent = val.toFixed(1); }
+  else if (key === 'extra1') { document.getElementById('vvalExtra1').textContent = val + '%'; }
+  else if (key === 'extra2') { document.getElementById('vvalExtra2').textContent = val + '%'; }
+}
+
+function setVfxResolution(res) {
+  if (isVfxRecording) return;
+  if (res === '720') { VFX_WIDTH = 1280; VFX_HEIGHT = 720; VFX_RES_SCALE = 0.67; }
+  else if (res === '1080') { VFX_WIDTH = 1920; VFX_HEIGHT = 1080; VFX_RES_SCALE = 1.0; }
+  else if (res === '2k') { VFX_WIDTH = 2560; VFX_HEIGHT = 1440; VFX_RES_SCALE = 1.33; }
+  vfxCanvas.width = VFX_WIDTH; vfxCanvas.height = VFX_HEIGHT;
+  vfxFx.width = VFX_WIDTH; vfxFx.height = VFX_HEIGHT;
+}
+
+function setVfxDuration(sec) {
+  if (isVfxRecording) return;
+  VFX_LOOP_DURATION = sec;
+  document.getElementById('btnExportVfx').textContent = `💾 Render Loop ke Gallery (${sec}s)`;
+  buildVfxParticles();
+}
+
+function setVfxFps(f) {
+  if (isVfxRecording) return;
+  VFX_TARGET_FPS = f;
+  document.getElementById('vfxFpsBadge').textContent = `VFX Loop • ${f} FPS`;
+}
+
+function updateVfxRot(axis, v) {
+  v = parseFloat(v);
+  if (axis === 'x') { vRotX = v; document.getElementById('vvalRotX').textContent = v + '°'; }
+  else if (axis === 'y') { vRotY = v; document.getElementById('vvalRotY').textContent = v + '°'; }
+  else { vZoom3d = v; document.getElementById('vvalZoom').textContent = v.toFixed(2) + 'x'; }
+}
+
+function resetVfx3D() {
+  vRotX = vRotY = vRotZ = 0; vZoom3d = 1;
+  [['vinRotX', 0, 'vvalRotX', '0°'], ['vinRotY', 0, 'vvalRotY', '0°'], ['vinZoom', 1, 'vvalZoom', '1.00x']]
+    .forEach(([i, val, l, t]) => { document.getElementById(i).value = val; document.getElementById(l).textContent = t; });
+}
+
+function ambilFotoVfx() {
+  const resName = (VFX_WIDTH === 1280) ? "720p" : (VFX_WIDTH === 1920) ? "1080p" : "2K";
+  vfxCanvas.toBlob((blob) => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `VFX-${vfxMode}-${resName}-${Date.now()}.png`; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+  }, 'image/png');
+}
+
+function pickVfxMime() {
+  const list = [
+    'video/mp4;codecs=avc1.640028',
+    'video/mp4;codecs=avc1',
+    'video/mp4',
+    'video/webm;codecs=vp8',
+    'video/webm;codecs=vp9',
+    'video/webm'
+  ];
+  for (const m of list) {
+    if (window.MediaRecorder && MediaRecorder.isTypeSupported(m)) return m;
+  }
+  return '';
+}
+
+async function startVfxAutoExport() {
+  if (isVfxRecording) {
+    finishVfxAutoExport(true);
+    return;
+  }
+
+  const btn = document.getElementById('btnExportVfx');
+  const progBox = document.getElementById('progVfx');
+  const progFill = document.getElementById('progVfxFill');
+  const progPct = document.getElementById('progVfxPct');
+
+  try {
+    renderSeamlessVfxFrame(VFX_LOOP_DURATION * 0.25);
+    presentVfx();
+    vfxThumbCapture = vfxCanvas.toDataURL('image/jpeg', 0.75);
+
+    const recMime = pickVfxMime();
+    let stream = vfxCanvas.captureStream(0);
+    vfxVideoTrack = stream.getVideoTracks()[0];
+    if (!vfxVideoTrack || !vfxVideoTrack.requestFrame) {
+      stream = vfxCanvas.captureStream(VFX_TARGET_FPS);
+      vfxVideoTrack = null;
+    }
+
+    const bitrate = (VFX_WIDTH >= 2560) ? 20000000 : (VFX_WIDTH === 1920) ? 16000000 : 8000000;
+    const opts = { videoBitsPerSecond: bitrate };
+    if (recMime) opts.mimeType = recMime;
+    vfxMediaRecorder = new MediaRecorder(stream, opts);
+    vfxChunks = [];
+
+    vfxMediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) vfxChunks.push(e.data); };
+    vfxMediaRecorder.onstop = () => {
+      if (vfxChunks.length > 0) {
+        const type = (vfxMediaRecorder.mimeType || recMime || 'video/webm').split(';')[0];
+        const ext = type.includes('mp4') ? 'mp4' : 'webm';
+        const blob = new Blob(vfxChunks, { type });
+        const resName = `${VFX_WIDTH}x${VFX_HEIGHT}`;
+        const title = `VFX_${vfxMode}_${VFX_LOOP_DURATION}s_LOOP_${resName}_${VFX_TARGET_FPS}fps.${ext}`;
+
+        saveVideoToGallery({
+          title,
+          tag: 'VFX Seamless Loop',
+          date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+          duration: VFX_LOOP_DURATION + 's',
+          res: resName,
+          thumb: vfxThumbCapture,
+          blob
+        });
+        alert('Selesai! Video Seamless Loop VFX berhasil disimpan ke My Gallery.');
+      }
+      vfxChunks = [];
+    };
+
+    try { if (navigator.wakeLock) vfxWakeLock = await navigator.wakeLock.request('screen'); } catch (e) {}
+
+    vfxExportFrameIdx = 0;
+    vfxExportTotalFrames = VFX_LOOP_DURATION * VFX_TARGET_FPS;
+
+    vfxMediaRecorder.start(500);
+    isVfxRecording = true;
+    btn.classList.add('recording');
+    btn.textContent = '⏹ Batal Render (0%)';
+    progBox.style.display = 'block';
+    progFill.style.width = '0%';
+    progPct.textContent = '0%';
+  } catch (e) {
+    alert("Gagal memulai export video VFX: " + e.message);
+  }
+}
+
+function finishVfxAutoExport(cancelled = false) {
+  isVfxRecording = false;
+  if (cancelled) vfxChunks = [];
+  try { vfxMediaRecorder.stop(); } catch (e) {}
+  try { if (vfxWakeLock) { vfxWakeLock.release(); vfxWakeLock = null; } } catch (e) {}
+  vfxVideoTrack = null;
+
+  const btn = document.getElementById('btnExportVfx');
+  const progBox = document.getElementById('progVfx');
+  btn.textContent = `💾 Render Loop ke Gallery (${VFX_LOOP_DURATION}s)`;
+  btn.classList.remove('recording');
+  progBox.style.display = 'none';
+}
+
+// =========================================================================
+// UNIFIED MASTER ANIMATION LOOP (TERISOLASI PER TAB AGAR RINGAN & MULUS)
+// =========================================================================
+let vLastRender = performance.now();
+let vFpsCount = 0, vFpsStamp = vLastRender;
+
+function masterLoop(now) {
+  requestAnimationFrame(masterLoop);
+
+  // 1. Jika sedang di Tab 1 (Rain Canvas) dan tidak sedang export
+  if (activeTab === 'canvas' && !isRainExporting) {
+    const W = rainCanvas.width, H = rainCanvas.height;
+    compositePreviewCanvas.width = W;
+    compositePreviewCanvas.height = H;
+    renderRainFrame(compPrevCtx, W, H, true, true);
+
+    rCtx.clearRect(0, 0, W, H);
+    rCtx.save();
+    rCtx.translate(panX, panY);
+    rCtx.scale(zoomLevel, zoomLevel);
+    rCtx.drawImage(compositePreviewCanvas, 0, 0);
+    rCtx.restore();
+  }
+
+  // 2. Jika sedang di Tab 2 (VFX Studio) atau sedang export VFX
+  if (activeTab === 'vfx' || isVfxRecording) {
+    if (isVfxRecording) {
+      const interval = 1000 / VFX_TARGET_FPS;
+      if (now - vLastRender < interval - 2) return;
+      vLastRender = now;
+
+      const exactTimeSec = vfxExportFrameIdx / VFX_TARGET_FPS;
+      renderSeamlessVfxFrame(exactTimeSec);
+      presentVfx();
+
+      if (vfxVideoTrack && vfxVideoTrack.requestFrame) vfxVideoTrack.requestFrame();
+
+      vfxExportFrameIdx++;
+      const pct = Math.min(100, Math.round((vfxExportFrameIdx / vfxExportTotalFrames) * 100));
+      document.getElementById('btnExportVfx').textContent = `⏹ Batal Render (${pct}%)`;
+      document.getElementById('progVfxFill').style.width = pct + '%';
+      document.getElementById('progVfxPct').textContent = pct + '%';
+
+      if (vfxExportFrameIdx >= vfxExportTotalFrames) {
+        finishVfxAutoExport(false);
+      }
+      return;
+    }
+
+    const interval = 1000 / VFX_TARGET_FPS;
+    const elapsed = now - vLastRender;
+    if (elapsed < interval - 2) return;
+    vLastRender = (elapsed > interval * 2) ? now : vLastRender + interval;
+
+    vSimClock = (vSimClock + (1 / VFX_TARGET_FPS)) % VFX_LOOP_DURATION;
+    renderSeamlessVfxFrame(vSimClock);
+    presentVfx();
+
+    vFpsCount++;
+    if (now - vFpsStamp >= 1000) {
+      document.getElementById('vfxFpsBadge').textContent = `VFX Loop • ${vFpsCount} FPS`;
+      vFpsCount = 0; vFpsStamp = now;
+    }
+  }
+}
+
+// =========================================================================
+// BAGIAN 3: GALLERY RENDER & ACTIONS (DARI index_7.html)
+// =========================================================================
 function loadGallery() {
   if (!db) return;
   const tx = db.transaction('videos', 'readonly');
@@ -1420,12 +2595,12 @@ function deleteVideo(id) {
   tx.oncomplete = () => { loadGallery(); updateGalleryBadge(); };
 }
 
+// Init All
 createDefaultRoomImage();
 initRainParticles();
-initVfxParticles();
 updateRainParams();
-updateVfxParams();
-animateLoop();
+setVfxMode('rain');
+requestAnimationFrame(masterLoop);
 </script>
 </body>
 </html>
