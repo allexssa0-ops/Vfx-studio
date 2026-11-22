@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AtmosStudio — Rain Canvas, VFX & Gallery</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --card: #181b24;
+    --card-2: #202430;
+    --border: #2c3140;
+    --amber: #f59e0b;
+    --amber-hover: #d97706;
+    --purple: #8b5cf6;
+    --text: #f3f4f6;
+    --muted: #9ca3af;
+    --green: #10b981;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  body { background: var(--bg); color: var(--text); min-height: 100vh; padding-bottom: 40px; }
+
+  header {
+    background: #13161f; border-bottom: 1px solid var(--border);
+    padding: 12px 16px; display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 50;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; }
+  .brand-dot { width: 22px; height: 22px; border-radius: 50%; background: radial-gradient(circle, #fde047, #f59e0b); box-shadow: 0 0 12px rgba(245,158,11,0.6); }
+  .badge-free { background: rgba(16,185,129,0.15); color: var(--green); border: 1px solid rgba(16,185,129,0.3); font-size: 11px; padding: 3px 8px; border-radius: 99px; font-weight: 600; }
+
+  .nav-tabs {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px;
+    max-width: 720px; margin: 16px auto; padding: 0 14px;
+  }
+  .tab-btn {
+    background: var(--card); border: 1px solid var(--border); color: var(--muted);
+    padding: 11px 8px; border-radius: 10px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;
+  }
+  .tab-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 0 14px; }
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .hero-title { text-align: center; margin: 8px 0 16px; }
+  .hero-title h1 { font-size: 20px; margin-bottom: 4px; }
+  .hero-title p { font-size: 12px; color: var(--muted); }
+
+  .stage-wrap {
+    position: relative; width: 100%; aspect-ratio: 16/9; background: #090a0f;
+    border-radius: 14px; overflow: hidden; border: 1px solid var(--border); margin-bottom: 14px;
+    touch-action: none;
+  }
+  canvas { width: 100%; height: 100%; display: block; }
+  .stage-badge {
+    position: absolute; top: 10px; left: 10px; background: rgba(15,17,23,0.75);
+    backdrop-filter: blur(6px); padding: 4px 10px; border-radius: 99px;
+    font-size: 11px; color: var(--green); border: 1px solid rgba(16,185,129,0.3);
+    display: flex; align-items: center; gap: 5px; pointer-events: none;
+  }
+  .stage-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--green); }
+  .upload-overlay-btn {
+    position: absolute; top: 10px; right: 10px; background: var(--amber); color: #111827;
+    border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; z-index: 10;
+  }
+
+  .panel { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 14px; margin-bottom: 14px; }
+  .label-sm { font-size: 11px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 14px; }
+  @media(min-width: 520px) { .grid-4 { grid-template-columns: repeat(4, 1fr); } }
+
+  .opt-btn {
+    background: var(--card-2); border: 1px solid var(--border); color: var(--text);
+    padding: 10px 6px; border-radius: 9px; font-size: 12px; font-weight: 600; cursor: pointer; text-align: center;
+  }
+  .opt-btn.active { background: var(--amber); color: #111827; border-color: var(--amber); }
+  .opt-btn.blue.active { background: #3b82f6; color: #fff; border-color: #3b82f6; }
+
+  .brush-box {
+    background: #13161f; border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px; margin-bottom: 14px;
+  }
+  .brush-tip { font-size: 11px; color: #93c5fd; margin-bottom: 10px; line-height: 1.4; }
+
+  .slider-row { margin-bottom: 12px; }
+  .slider-row:last-child { margin-bottom: 0; }
+  input[type="range"] { width: 100%; accent-color: var(--amber); cursor: pointer; height: 6px; border-radius: 4px; background: var(--card-2); }
+  .vfx-panel input[type="range"] { accent-color: var(--purple); }
+
+  .export-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+  select {
+    width: 100%; background: var(--card-2); color: var(--text); border: 1px solid var(--border);
+    padding: 10px; border-radius: 9px; font-size: 13px;
+  }
+  .btn-primary {
+    width: 100%; background: var(--amber); color: #111827; border: none; padding: 13px;
+    border-radius: 10px; font-size: 14px; font-weight: 700; cursor: pointer; transition: 0.2s;
+  }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-vfx { background: linear-gradient(90deg, #6366f1, #a855f7); color: #fff; }
+
+  .progress-box { display: none; margin-top: 12px; background: var(--card-2); padding: 10px; border-radius: 9px; }
+  .progress-bar-bg { width: 100%; height: 8px; background: #11131a; border-radius: 99px; overflow: hidden; margin-top: 6px; }
+  .progress-bar-fill { height: 100%; width: 0%; background: var(--green); transition: width 0.2s; }
+
+  .gallery-grid { display: grid; grid-template-columns: 1fr; gap: 14px; }
+  @media(min-width: 540px) { .gallery-grid { grid-template-columns: 1fr 1fr; } }
+  .gal-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+  .gal-thumb { width: 100%; aspect-ratio: 16/9; background: #000; object-fit: cover; display: block; }
+  .gal-body { padding: 12px; }
+  .gal-tags { display: flex; gap: 6px; margin-bottom: 8px; align-items: center; }
+  .tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 6px; }
+  .tag-done { background: rgba(16,185,129,0.2); color: var(--green); }
+  .tag-type { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+  .gal-meta { font-size: 11px; color: var(--muted); margin-bottom: 10px; }
+  .gal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .btn-sm {
+    padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;
+    border: 1px solid var(--border); background: var(--card-2); color: var(--text); text-align: center; text-decoration: none;
+  }
+  .btn-sm.amber { background: var(--amber); color: #111827; border-color: var(--amber); }
+  .btn-del { width: 100%; color: #f87171; border-color: rgba(248,113,113,0.3); }
+
+  .modal {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85);
+    z-index: 100; align-items: center; justify-content: center; padding: 16px;
+  }
+  .modal.open { display: flex; }
+  .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 14px; max-width: 720px; width: 100%; padding: 14px; }
+  .modal-content video { width: 100%; border-radius: 10px; background: #000; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-dot"></div>
+    <span>AtmosStudio</span>
+  </div>
+  <span class="badge-free">Window Brush + Full 16:9</span>
+</header>
+
+<div class="nav-tabs">
+  <button class="tab-btn active" onclick="switchTab('canvas', this)">🌧️ Rain Canvas</button>
+  <button class="tab-btn" onclick="switchTab('vfx', this)">✨ VFX Studio</button>
+  <button class="tab-btn" onclick="switchTab('gallery', this)">🎞️ My Gallery (<span id="galCount">0</span>)</button>
+</div>
+
+<div class="container">
+
+  <!-- TAB 1: RAIN VIDEO CANVAS -->
+  <div id="tab-canvas" class="section active">
+    <div class="hero-title">
+      <h1>Ubah Gambar Jadi Hujan & Salju</h1>
+      <p>Upload gambar, usap kaca jendela dengan Kuas jika perlu, lalu render ke Gallery</p>
+    </div>
+
+    <div class="stage-wrap" id="rainStageWrap">
+      <canvas id="rainCanvas" width="1280" height="720"></canvas>
+      <div class="stage-badge" id="stageStatus">Live Preview 60 FPS</div>
+      <button class="upload-overlay-btn" onclick="document.getElementById('imgInput').click()">📷 Pilih Gambar</button>
+      <input type="file" id="imgInput" accept="image/*" hidden>
+    </div>
+
+    <div class="panel">
+      <div class="label-sm"><span>Scene Mode</span><span id="maskHint" style="color:var(--amber)">Interior Window Mask</span></div>
+      <div class="grid-2">
+        <button class="opt-btn active" id="sceneInterior" onclick="setScene('interior')">🏠 Interior (Kaca Jendela)</button>
+        <button class="opt-btn" id="sceneOutdoor" onclick="setScene('outdoor')">🌲 Outdoors (Seluruh Layar)</button>
+      </div>
+
+      <!-- KONTROL MASKING & KUAS JENDELA (KHUSUS INTERIOR) -->
+      <div class="brush-box" id="interiorControls">
+        <div class="label-sm">
+          <span>Alat Seleksi Kaca Jendela</span>
+          <label style="color:#60a5fa; cursor:pointer; display:flex; align-items:center; gap:5px; text-transform:none;">
+            <input type="checkbox" id="showMaskOverlay" checked> Tampilkan Area Jendela (Biru)
+          </label>
+        </div>
+        <div class="brush-tip">
+          💡 <b>Cara Pakai:</b> Usapkan jari langsung di gambar di atas pada bagian <b>kaca jendela</b>. Area berwarna biru adalah tempat hujan/salju akan turun.
+        </div>
+
+        <div class="grid-3">
+          <button class="opt-btn blue active" id="toolBrush" onclick="setBrushTool('brush')">🖌️ Kuas Jendela</button>
+          <button class="opt-btn blue" id="toolEraser" onclick="setBrushTool('eraser')">🧽 Penghapus</button>
+          <button class="opt-btn" onclick="clearWindowMask()">🗑️ Hapus Semua</button>
+        </div>
+
+        <div class="grid-2" style="margin-bottom:10px;">
+          <button class="opt-btn" onclick="autoDetectWindowMask()">✨ Deteksi Otomatis</button>
+          <button class="opt-btn" onclick="fillAllWindowMask()">🪟 Pilih Seluruh Layar</button>
+        </div>
+
+        <div class="slider-row">
+          <div class="label-sm"><span>Ukuran Kuas</span><span id="brushSizeVal">65 px</span></div>
+          <input type="range" id="brushSizeSlider" min="15" max="180" value="65" oninput="document.getElementById('brushSizeVal').textContent = this.value + ' px'">
+        </div>
+      </div>
+
+      <div class="label-sm"><span>Weather Preset</span></div>
+      <div class="grid-4">
+        <button class="opt-btn active" onclick="setWeather('light_rain', this)">🌦️ Hujan Kecil</button>
+        <button class="opt-btn" onclick="setWeather('heavy_rain', this)">⛈️ Hujan Deras</button>
+        <button class="opt-btn" onclick="setWeather('light_snow', this)">🌨️ Salju Ringan</button>
+        <button class="opt-btn" onclick="setWeather('heavy_snow', this)">❄️ Salju Lebat</button>
+      </div>
+
+      <div class="slider-row" style="margin-bottom:14px;">
+        <div class="label-sm"><span>Effect Brightness (Ketajaman Hujan/Salju)</span><span id="brightVal">85%</span></div>
+        <input type="range" id="brightSlider" min="20" max="100" value="85" oninput="updateRainParams()">
+      </div>
+
+      <div class="export-row">
+        <div>
+          <div class="label-sm"><span>Resolusi (Full 16:9)</span></div>
+          <select id="rainRes">
+            <option value="1280x720">HD (720p)</option>
+            <option value="1920x1080" selected>Full HD (1080p)</option>
+            <option value="2560x1440">2K QHD (1440p)</option>
+          </select>
+        </div>
+        <div>
+          <div class="label-sm"><span>Durasi Klip</span></div>
+          <select id="rainDur">
+            <option value="10">10 Detik</option>
+            <option value="15" selected>15 Detik</option>
+            <option value="30">30 Detik</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="btnExportRain" onclick="exportCanvasVideo('rain')">🎬 Render & Simpan ke Gallery</button>
+      <div class="progress-box" id="progRain">
+        <div class="label-sm"><span id="progRainText">Merender video...</span><span id="progRainPct">0%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progRainFill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 2: VFX EFFECTS STUDIO -->
+  <div id="tab-vfx" class="section">
+    <div class="hero-title">
+      <h1>VFX Overlay Studio</h1>
+      <p>Partikel hujan/salju Full 16:9 berlatar hitam pekat — siap tempel di CapCut (Blend: Screen)</p>
+    </div>
+
+    <div class="stage-wrap">
+      <canvas id="vfxCanvas" width="1280" height="720"></canvas>
+      <div class="stage-badge">VFX Live 60 FPS</div>
+    </div>
+
+    <div class="panel vfx-panel">
+      <div class="label-sm"><span>Tipe Partikel VFX</span></div>
+      <div class="grid-2">
+        <button class="opt-btn active" id="vfxTypeRain" onclick="setVfxType('rain')">🌧️ Garis Hujan (Rain Streaks)</button>
+        <button class="opt-btn" id="vfxTypeSnow" onclick="setVfxType('snow')">❄️ Butiran Salju (Snowflakes)</button>
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Amount (Jumlah Partikel)</span><span id="vfxAmtVal">750</span></div>
+        <input type="range" id="vfxAmt" min="150" max="2500" value="750" oninput="updateVfxParams()">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Fall Speed (Kecepatan Jatuh)</span><span id="vfxSpdVal">1.5x</span></div>
+        <input type="range" id="vfxSpd" min="4" max="45" value="20" oninput="updateVfxParams()">
+      </div>
+
+      <div class="slider-row">
+        <div class="label-sm"><span>Particle Size (Ukuran)</span><span id="vfxSizeVal">1.6</span></div>
+        <input type="range" id="vfxSize" min="6" max="45" value="16" oninput="updateVfxParams()">
+      </div>
+
+      <div class="slider-row" style="margin-bottom:14px;">
+        <div class="label-sm"><span>Wind Angle (Arah Angin)</span><span id="vfxWindVal">0.4</span></div>
+        <input type="range" id="vfxWind" min="-15" max="15" value="2" oninput="updateVfxParams()">
+      </div>
+
+      <div class="export-row">
+        <div>
+          <div class="label-sm"><span>Resolusi (Full 16:9)</span></div>
+          <select id="vfxRes">
+            <option value="1280x720">HD (720p)</option>
+            <option value="1920x1080" selected>Full HD (1080p)</option>
+            <option value="2560x1440">2K QHD (1440p)</option>
+          </select>
+        </div>
+        <div>
+          <div class="label-sm"><span>Durasi VFX</span></div>
+          <select id="vfxDur">
+            <option value="10">10 Detik</option>
+            <option value="20" selected>20 Detik</option>
+            <option value="30">30 Detik</option>
+          </select>
+        </div>
+      </div>
+
+      <button class="btn-primary btn-vfx" id="btnExportVfx" onclick="exportCanvasVideo('vfx')">✨ Render VFX Overlay ke Gallery</button>
+      <div class="progress-box" id="progVfx">
+        <div class="label-sm"><span id="progVfxText">Merender VFX...</span><span id="progVfxPct">0%</span></div>
+        <div class="progress-bar-bg"><div class="progress-bar-fill" id="progVfxFill"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAB 3: MY GALLERY -->
+  <div id="tab-gallery" class="section">
+    <div class="hero-title">
+      <h1>My Gallery</h1>
+      <p>Semua hasil render tersimpan otomatis. Putar preview atau unduh ke HP.</p>
+    </div>
+    <div id="galleryEmpty" class="panel" style="text-align:center; padding:30px; color:var(--muted);">
+      Belum ada video tersimpan. Buat video pertama kamu di tab <b>Rain Canvas</b> atau <b>VFX Studio</b>.
+    </div>
+    <div class="gallery-grid" id="galleryGrid"></div>
+  </div>
+
+</div>
+
+<!-- MODAL PREVIEW -->
+<div class="modal" id="previewModal" onclick="closePreview(event)">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div class="label-sm" style="margin-bottom:10px;">
+      <span id="modalTitle">Video Preview</span>
+      <span style="color:var(--amber); cursor:pointer;" onclick="closePreview()">✕ Tutup</span>
+    </div>
+    <video id="modalVideo" controls loop playsinline></video>
+  </div>
+</div>
+
+<script>
+// ================= NAVIGATION =================
+function switchTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'gallery') loadGallery();
+}
+
+// ================= TAB 1: RAIN CANVAS + WINDOW BRUSH ENGINE =================
+const rainCanvas = document.getElementById('rainCanvas');
+const rCtx = rainCanvas.getContext('2d');
+const offImgCanvas = document.createElement('canvas');
+const offImgCtx = offImgCanvas.getContext('2d');
+const offMaskCanvas = document.createElement('canvas');
+const offMaskCtx = offMaskCanvas.getContext('2d');
+const offWeatherCanvas = document.createElement('canvas');
+const offWeatherCtx = offWeatherCanvas.getContext('2d');
+const offBlueGuideCanvas = document.createElement('canvas');
+const offBlueGuideCtx = offBlueGuideCanvas.getContext('2d');
+
+let loadedImg = null;
+let sceneMode = 'interior';
+let weatherPreset = 'light_rain';
+let brushTool = 'brush'; // 'brush' or 'eraser'
+let isDrawingMask = false;
+let lastDrawPt = null;
+let rainParticles = [];
+
+const WEATHER_CONFIG = {
+  light_rain: { count: 650,  speedY: 0.024, speedX: 0.0018, len: 0.032, width: 0.0016, isSnow: false },
+  heavy_rain: { count: 1800, speedY: 0.042, speedX: 0.0042, len: 0.048, width: 0.0022, isSnow: false },
+  light_snow: { count: 450,  speedY: 0.0035, speedX: 0.0010, len: 0.0032, width: 0.0032, isSnow: true },
+  heavy_snow: { count: 1400, speedY: 0.0065, speedX: 0.0022, len: 0.0045, width: 0.0045, isSnow: true }
+};
+
+function createDefaultRoomImage() {
+  const c = document.createElement('canvas');
+  c.width = 1920; c.height = 1080;
+  const ctx = c.getContext('2d');
+  ctx.fillStyle = '#1c1917';
+  ctx.fillRect(0, 0, 1920, 1080);
+  const grad = ctx.createLinearGradient(0, 90, 0, 750);
+  grad.addColorStop(0, '#94a3b8');
+  grad.addColorStop(1, '#475569');
+  ctx.fillStyle = grad;
+  ctx.fillRect(690, 105, 1110, 630);
+  ctx.strokeStyle = '#292524'; ctx.lineWidth = 24;
+  ctx.strokeRect(690, 105, 1110, 630);
+  ctx.beginPath(); ctx.moveTo(1245, 105); ctx.lineTo(1245, 735); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(690, 420); ctx.lineTo(1800, 420); ctx.stroke();
+  ctx.fillStyle = '#292524'; ctx.fillRect(90, 210, 480, 690);
+  ctx.fillStyle = '#ea580c'; ctx.fillRect(195, 540, 270, 270);
+  const img = new Image();
+  img.onload = () => { loadedImg = img; prepareImageLayers(); };
+  img.src = c.toDataURL();
+}
+
+document.getElementById('imgInput').addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    const img = new Image();
+    img.onload = () => { loadedImg = img; prepareImageLayers(); };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+});
+
+function prepareImageLayers() {
+  if (!loadedImg) return;
+  const W = 1920, H = 1080;
+  offImgCanvas.width = W; offImgCanvas.height = H;
+  offMaskCanvas.width = W; offMaskCanvas.height = H;
+  const scale = Math.max(W / loadedImg.width, H / loadedImg.height);
+  const nw = loadedImg.width * scale, nh = loadedImg.height * scale;
+  offImgCtx.drawImage(loadedImg, (W - nw) / 2, (H - nh) / 2, nw, nh);
+  autoDetectWindowMask();
+}
+
+// Deteksi awal area terang (kaca jendela), lalu user bisa koreksi pakai kuas
+function autoDetectWindowMask() {
+  const W = 1920, H = 1080;
+  offMaskCanvas.width = W; offMaskCanvas.height = H;
+  offMaskCtx.drawImage(offImgCanvas, 0, 0);
+  const imgData = offMaskCtx.getImageData(0, 0, W, H);
+  const d = imgData.data;
+  const thresh = 115;
+  for (let i = 0; i < d.length; i += 4) {
+    const lum = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+    const alpha = lum > thresh ? Math.min(255, (lum - thresh) * 6) : 0;
+    d[i] = 255; d[i + 1] = 255; d[i + 2] = 255; d[i + 3] = alpha;
+  }
+  offMaskCtx.putImageData(imgData, 0, 0);
+}
+
+function clearWindowMask() {
+  offMaskCtx.clearRect(0, 0, offMaskCanvas.width, offMaskCanvas.height);
+}
+
+function fillAllWindowMask() {
+  offMaskCtx.globalCompositeOperation = 'source-over';
+  offMaskCtx.fillStyle = 'rgba(255,255,255,1)';
+  offMaskCtx.fillRect(0, 0, offMaskCanvas.width, offMaskCanvas.height);
+}
+
+function setBrushTool(tool) {
+  brushTool = tool;
+  document.getElementById('toolBrush').classList.toggle('active', tool === 'brush');
+  document.getElementById('toolEraser').classList.toggle('active', tool === 'eraser');
+  document.getElementById('showMaskOverlay').checked = true;
+}
+
+// Event sentuh & mouse untuk melukis area jendela langsung di kanvas
+function getCanvasCoords(e) {
+  const rect = rainCanvas.getBoundingClientRect();
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  return {
+    x: ((clientX - rect.left) / rect.width) * offMaskCanvas.width,
+    y: ((clientY - rect.top) / rect.height) * offMaskCanvas.height
+  };
+}
+
+function drawMaskStroke(pt1, pt2) {
+  if (sceneMode !== 'interior') return;
+  const radius = parseInt(document.getElementById('brushSizeSlider').value) * 1.5;
+  offMaskCtx.save();
+  if (brushTool === 'eraser') {
+    offMaskCtx.globalCompositeOperation = 'destination-out';
+    offMaskCtx.strokeStyle = 'rgba(0,0,0,1)';
+    offMaskCtx.fillStyle = 'rgba(0,0,0,1)';
+  } else {
+    offMaskCtx.globalCompositeOperation = 'source-over';
+    offMaskCtx.strokeStyle = 'rgba(255,255,255,1)';
+    offMaskCtx.fillStyle = 'rgba(255,255,255,1)';
+  }
+  offMaskCtx.lineCap = 'round';
+  offMaskCtx.lineJoin = 'round';
+  offMaskCtx.lineWidth = radius * 2;
+  offMaskCtx.beginPath();
+  offMaskCtx.moveTo(pt1.x, pt1.y);
+  offMaskCtx.lineTo(pt2.x, pt2.y);
+  offMaskCtx.stroke();
+  offMaskCtx.restore();
+}
+
+rainCanvas.addEventListener('pointerdown', (e) => {
+  if (sceneMode !== 'interior') return;
+  isDrawingMask = true;
+  document.getElementById('showMaskOverlay').checked = true;
+  lastDrawPt = getCanvasCoords(e);
+  drawMaskStroke(lastDrawPt, lastDrawPt);
+});
+
+rainCanvas.addEventListener('pointermove', (e) => {
+  if (!isDrawingMask) return;
+  const currPt = getCanvasCoords(e);
+  drawMaskStroke(lastDrawPt, currPt);
+  lastDrawPt = currPt;
+});
+
+window.addEventListener('pointerup', () => { isDrawingMask = false; lastDrawPt = null; });
+
+function setScene(mode) {
+  sceneMode = mode;
+  document.getElementById('sceneInterior').classList.toggle('active', mode === 'interior');
+  document.getElementById('sceneOutdoor').classList.toggle('active', mode === 'outdoor');
+  document.getElementById('interiorControls').style.display = mode === 'interior' ? 'block' : 'none';
+  document.getElementById('maskHint').textContent = mode === 'interior' ? 'Interior Window Mask' : 'Full Screen';
+}
+
+function setWeather(preset, btn) {
+  weatherPreset = preset;
+  document.querySelectorAll('#tab-canvas .grid-4 .opt-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  initRainParticles();
+}
+
+function updateRainParams() {
+  document.getElementById('brightVal').textContent = document.getElementById('brightSlider').value + '%';
+}
+
+function initRainParticles() {
+  const cfg = WEATHER_CONFIG[weatherPreset];
+  rainParticles = [];
+  for (let i = 0; i < cfg.count; i++) {
+    const depth = 0.45 + Math.random() * 0.55;
+    rainParticles.push({
+      nx: Math.random(),
+      ny: Math.random(),
+      vy: cfg.speedY * depth,
+      vx: cfg.speedX * depth,
+      size: cfg.width * depth,
+      len: cfg.len * depth,
+      phase: Math.random() * Math.PI * 2,
+      alpha: 0.45 + Math.random() * 0.55
+    });
+  }
+}
+
+function renderRainFrame(targetCtx, W, H, advance = true, showGuide = false) {
+  targetCtx.clearRect(0, 0, W, H);
+  if (offImgCanvas.width > 0) {
+    targetCtx.drawImage(offImgCanvas, 0, 0, W, H);
+  }
+
+  offWeatherCanvas.width = W; offWeatherCanvas.height = H;
+  offWeatherCtx.clearRect(0, 0, W, H);
+
+  const cfg = WEATHER_CONFIG[weatherPreset];
+  const brightness = parseInt(document.getElementById('brightSlider').value) / 100;
+
+  for (let p of rainParticles) {
+    if (advance) {
+      p.ny += p.vy;
+      p.nx += p.vx + (cfg.isSnow ? Math.sin(p.phase += 0.03) * 0.0006 : 0);
+      if (p.ny > 1.05) { p.ny = -0.05; p.nx = Math.random(); }
+      if (p.nx > 1.0) p.nx -= 1.0;
+      if (p.nx < 0.0) p.nx += 1.0;
+    }
+
+    const px = p.nx * W;
+    const py = p.ny * H;
+    const pSize = Math.max(1.2, p.size * W);
+    const pLen = p.len * H;
+    const pVx = p.vx * W;
+
+    offWeatherCtx.strokeStyle = `rgba(245, 250, 255, ${Math.min(1, p.alpha * brightness * 1.15)})`;
+    offWeatherCtx.fillStyle = `rgba(250, 253, 255, ${Math.min(1, p.alpha * brightness * 1.15)})`;
+
+    if (cfg.isSnow) {
+      offWeatherCtx.beginPath();
+      offWeatherCtx.arc(px, py, pSize, 0, Math.PI * 2);
+      offWeatherCtx.fill();
+    } else {
+      offWeatherCtx.lineWidth = pSize;
+      offWeatherCtx.lineCap = 'round';
+      offWeatherCtx.beginPath();
+      offWeatherCtx.moveTo(px, py);
+      offWeatherCtx.lineTo(px - pVx * 1.4, py - pLen);
+      offWeatherCtx.stroke();
+    }
+  }
+
+  if (sceneMode === 'interior' && offMaskCanvas.width > 0) {
+    offWeatherCtx.globalCompositeOperation = 'destination-in';
+    offWeatherCtx.drawImage(offMaskCanvas, 0, 0, W, H);
+    offWeatherCtx.globalCompositeOperation = 'source-over';
+  }
+
+  targetCtx.drawImage(offWeatherCanvas, 0, 0, W, H);
+
+  // Tampilkan highlight biru transparan HANYA saat preview (tidak ikut ter-render ke video)
+  if (showGuide && sceneMode === 'interior' && document.getElementById('showMaskOverlay').checked) {
+    offBlueGuideCanvas.width = W; offBlueGuideCanvas.height = H;
+    offBlueGuideCtx.clearRect(0, 0, W, H);
+    offBlueGuideCtx.fillStyle = 'rgba(59, 130, 246, 0.35)';
+    offBlueGuideCtx.fillRect(0, 0, W, H);
+    offBlueGuideCtx.globalCompositeOperation = 'destination-in';
+    offBlueGuideCtx.drawImage(offMaskCanvas, 0, 0, W, H);
+    offBlueGuideCtx.globalCompositeOperation = 'source-over';
+    targetCtx.drawImage(offBlueGuideCanvas, 0, 0, W, H);
+  }
+}
+
+// ================= TAB 2: VFX STUDIO ENGINE =================
+const vfxCanvas = document.getElementById('vfxCanvas');
+const vCtx = vfxCanvas.getContext('2d');
+let vfxType = 'rain';
+let vfxParticles = [];
+
+function setVfxType(t) {
+  vfxType = t;
+  document.getElementById('vfxTypeRain').classList.toggle('active', t === 'rain');
+  document.getElementById('vfxTypeSnow').classList.toggle('active', t === 'snow');
+  initVfxParticles();
+}
+
+function updateVfxParams() {
+  const amt = parseInt(document.getElementById('vfxAmt').value);
+  const spd = parseInt(document.getElementById('vfxSpd').value);
+  const sz = parseInt(document.getElementById('vfxSize').value);
+  const wnd = parseInt(document.getElementById('vfxWind').value);
+  document.getElementById('vfxAmtVal').textContent = amt;
+  document.getElementById('vfxSpdVal').textContent = (spd / 13).toFixed(1) + 'x';
+  document.getElementById('vfxSizeVal').textContent = (sz / 10).toFixed(1);
+  document.getElementById('vfxWindVal').textContent = (wnd / 5).toFixed(1);
+  if (vfxParticles.length !== amt) initVfxParticles();
+}
+
+function initVfxParticles() {
+  const amt = parseInt(document.getElementById('vfxAmt').value);
+  vfxParticles = [];
+  for (let i = 0; i < amt; i++) {
+    vfxParticles.push({
+      nx: Math.random(),
+      ny: Math.random(),
+      depth: 0.35 + Math.random() * 0.65,
+      phase: Math.random() * Math.PI * 2
+    });
+  }
+}
+
+function renderVfxFrame(targetCtx, W, H, advance = true) {
+  targetCtx.fillStyle = '#000000';
+  targetCtx.fillRect(0, 0, W, H);
+
+  const spdNorm = parseInt(document.getElementById('vfxSpd').value) / 720;
+  const szNorm = (parseInt(document.getElementById('vfxSize').value) / 10) / 1280;
+  const windNorm = (parseInt(document.getElementById('vfxWind').value) / 2) / 1280;
+
+  for (let p of vfxParticles) {
+    const vy = (vfxType === 'snow' ? spdNorm * 0.25 : spdNorm) * p.depth;
+    const vx = windNorm * p.depth + (vfxType === 'snow' ? Math.sin(p.phase += 0.03) * 0.0007 : 0);
+
+    if (advance) {
+      p.ny += vy;
+      p.nx += vx;
+      if (p.ny > 1.05) { p.ny = -0.05; p.nx = Math.random(); }
+      if (p.nx > 1.0) p.nx -= 1.0;
+      if (p.nx < 0.0) p.nx += 1.0;
+    }
+
+    const px = p.nx * W;
+    const py = p.ny * H;
+    const pSize = Math.max(1.2, szNorm * W * p.depth);
+    const pVx = vx * W;
+
+    targetCtx.strokeStyle = `rgba(255,255,255,${0.4 + p.depth * 0.6})`;
+    targetCtx.fillStyle = `rgba(255,255,255,${0.45 + p.depth * 0.55})`;
+
+    if (vfxType === 'snow') {
+      targetCtx.beginPath();
+      targetCtx.arc(px, py, pSize * 2.4, 0, Math.PI * 2);
+      targetCtx.fill();
+    } else {
+      targetCtx.lineWidth = pSize;
+      targetCtx.lineCap = 'round';
+      targetCtx.beginPath();
+      targetCtx.moveTo(px, py);
+      targetCtx.lineTo(px - pVx * 1.3, py - (18 * pSize));
+      targetCtx.stroke();
+    }
+  }
+}
+
+let isExporting = false;
+function animateLoop() {
+  if (!isExporting) {
+    renderRainFrame(rCtx, rainCanvas.width, rainCanvas.height, true, true);
+    renderVfxFrame(vCtx, vfxCanvas.width, vfxCanvas.height, true);
+  }
+  requestAnimationFrame(animateLoop);
+}
+
+// ================= EXPORT VIDEO & INDEXEDDB GALLERY =================
+let db;
+const req = indexedDB.open('AtmosStudioDB', 1);
+req.onupgradeneeded = (e) => {
+  db = e.target.result;
+  db.createObjectStore('videos', { keyPath: 'id', autoIncrement: true });
+};
+req.onsuccess = (e) => { db = e.target.result; updateGalleryBadge(); };
+
+function updateGalleryBadge() {
+  if (!db) return;
+  const tx = db.transaction('videos', 'readonly');
+  const countReq = tx.objectStore('videos').count();
+  countReq.onsuccess = () => { document.getElementById('galCount').textContent = countReq.result; };
+}
+
+async function exportCanvasVideo(mode) {
+  const isRain = mode === 'rain';
+  const resStr = document.getElementById(isRain ? 'rainRes' : 'vfxRes').value;
+  const durSec = parseInt(document.getElementById(isRain ? 'rainDur' : 'vfxDur').value);
+  const [W, H] = resStr.split('x').map(Number);
+
+  const btn = document.getElementById(isRain ? 'btnExportRain' : 'btnExportVfx');
+  const progBox = document.getElementById(isRain ? 'progRain' : 'progVfx');
+  const progFill = document.getElementById(isRain ? 'progRainFill' : 'progVfxFill');
+  const progPct = document.getElementById(isRain ? 'progRainPct' : 'progVfxPct');
+
+  btn.disabled = true;
+  isExporting = true;
+  progBox.style.display = 'block';
+
+  const recCanvas = document.createElement('canvas');
+  recCanvas.width = W; recCanvas.height = H;
+  const recCtx = recCanvas.getContext('2d');
+
+  // showGuide = false agar highlight biru kuas TIDAK ikut terekam ke video
+  if (isRain) renderRainFrame(recCtx, W, H, false, false); else renderVfxFrame(recCtx, W, H, false);
+  const thumbUrl = recCanvas.toDataURL('image/jpeg', 0.75);
+
+  const stream = recCanvas.captureStream(30);
+  const mime = MediaRecorder.isTypeSupported('video/mp4;codecs=avc1') ? 'video/mp4;codecs=avc1' :
+               MediaRecorder.isTypeSupported('video/mp4') ? 'video/mp4' : 'video/webm';
+  const ext = mime.includes('mp4') ? 'mp4' : 'webm';
+  const recorder = new MediaRecorder(stream, { mimeType: mime, videoBitsPerSecond: 16000000 });
+  const chunks = [];
+
+  recorder.ondataavailable = (e) => { if (e.data.size > 0) chunks.push(e.data); };
+  recorder.onstop = () => {
+    const blob = new Blob(chunks, { type: mime });
+    const title = isRain ? `RainCanvas_${weatherPreset}_${W}x${H}_${durSec}s.${ext}` : `VFX_${vfxType}_${W}x${H}_${durSec}s.${ext}`;
+    const tx = db.transaction('videos', 'readwrite');
+    tx.objectStore('videos').add({
+      title,
+      tag: isRain ? 'Rain Canvas' : 'VFX Overlay',
+      date: new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }),
+      duration: durSec + 's',
+      res: resStr,
+      thumb: thumbUrl,
+      blob
+    });
+    tx.oncomplete = () => {
+      btn.disabled = false;
+      isExporting = false;
+      progBox.style.display = 'none';
+      progFill.style.width = '0%';
+      updateGalleryBadge();
+      alert('Selesai! Video full 16:9 berhasil disimpan ke My Gallery.');
+    };
+  };
+
+  recorder.start();
+  const startTime = performance.now();
+  const totalMs = durSec * 1000;
+
+  function step() {
+    const elapsed = performance.now() - startTime;
+    const pct = Math.min(100, Math.round((elapsed / totalMs) * 100));
+    progFill.style.width = pct + '%';
+    progPct.textContent = pct + '%';
+
+    if (isRain) renderRainFrame(recCtx, W, H, true, false);
+    else renderVfxFrame(recCtx, W, H, true);
+
+    if (elapsed < totalMs) {
+      requestAnimationFrame(step);
+    } else {
+      recorder.stop();
+    }
+  }
+  requestAnimationFrame(step);
+}
+
+// ================= GALLERY RENDER & ACTIONS =================
+function loadGallery() {
+  if (!db) return;
+  const tx = db.transaction('videos', 'readonly');
+  const reqAll = tx.objectStore('videos').getAll();
+  reqAll.onsuccess = () => {
+    const items = reqAll.result.reverse();
+    const grid = document.getElementById('galleryGrid');
+    const empty = document.getElementById('galleryEmpty');
+    grid.innerHTML = '';
+    empty.style.display = items.length ? 'none' : 'block';
+
+    items.forEach(item => {
+      const url = URL.createObjectURL(item.blob);
+      const sizeMb = (item.blob.size / (1024 * 1024)).toFixed(1);
+      const card = document.createElement('div');
+      card.className = 'gal-card';
+      card.innerHTML = `
+        <img class="gal-thumb" src="${item.thumb}" alt="thumb">
+        <div class="gal-body">
+          <div class="gal-tags">
+            <span class="tag tag-done">Completed</span>
+            <span class="tag tag-type">${item.tag} • ${item.res}</span>
+          </div>
+          <div style="font-size:13px; font-weight:700; margin-bottom:4px; word-break:break-all;">${item.title}</div>
+          <div class="gal-meta">📅 ${item.date} • ⏱️ ${item.duration} • 📦 ${sizeMb} MB</div>
+          <div class="gal-actions">
+            <button class="btn-sm amber" onclick="openPreview('${url}', '${item.title}')">▶ Preview</button>
+            <a class="btn-sm" href="${url}" download="${item.title}">⬇ Download</a>
+          </div>
+          <button class="btn-sm btn-del" onclick="deleteVideo(${item.id})">🗑️ Hapus dari Gallery</button>
+        </div>
+      `;
+      grid.appendChild(card);
+    });
+  };
+}
+
+function openPreview(url, title) {
+  document.getElementById('modalTitle').textContent = title;
+  const v = document.getElementById('modalVideo');
+  v.src = url;
+  document.getElementById('previewModal').classList.add('open');
+  v.play();
+}
+
+function closePreview() {
+  const v = document.getElementById('modalVideo');
+  v.pause(); v.src = '';
+  document.getElementById('previewModal').classList.remove('open');
+}
+
+function deleteVideo(id) {
+  const tx = db.transaction('videos', 'readwrite');
+  tx.objectStore('videos').delete(id);
+  tx.oncomplete = () => { loadGallery(); updateGalleryBadge(); };
+}
+
+createDefaultRoomImage();
+initRainParticles();
+initVfxParticles();
+animateLoop();
+</script>
+</body>
+</html>
